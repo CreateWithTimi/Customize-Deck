@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Phase 0 - Rive POC</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Rive Integration POC</h1>
+
+      <div class="canvas-wrapper">
+        <canvas id="testCanvas"></canvas>
+      </div>
+
+      <div class="controls">
+        <h2>Test Controls</h2>
+
+        <div class="control-group">
+          <label for="numberInput">Number Input (0-4):</label>
+          <input type="range" id="numberInput" min="0" max="4" value="0" />
+          <span id="numberValue">0</span>
+        </div>
+
+        <div class="control-group">
+          <button id="fireTrigger">Fire Trigger</button>
+        </div>
+
+        <div class="control-group">
+          <button id="dispose">Dispose Instance</button>
+          <button id="reinit">Re-initialize</button>
+        </div>
+      </div>
+
+      <div class="status">
+        <h2>Status</h2>
+        <div id="statusLog"></div>
+      </div>
+    </div>
+
+    <!-- Rive Runtime -->
+    <script src="https://unpkg.com/@rive-app/canvas@2.23.4"></script>
+
+    <!-- Our code -->
+    <script src="riveRuntime.js"></script>
+    <script src="poc.js"></script>
+  </body>
+</html>

@@ -1,0 +1,404 @@
+MASTER SPEC PROMPT (UPDATED, RIVE-FIRST, PAGE-SPLIT)
+Product Name (Working)
+
+Custom Conversation Deck Builder
+
+PRODUCT OVERVIEW (What We Are Building)
+
+You are building a premium, gamified, Rive-powered e-commerce MVP for a physical product:
+a customizable 52-card conversation deck designed for relationships and meaningful conversations.
+
+Core idea
+
+Users do NOT pick individual questions.
+They build a balanced mix across categories and trust a curated system.
+
+V1 Categories
+
+Romantic
+
+Deep
+
+Naughty
+
+Friendship
+
+Playful
+
+Physical constraints
+
+Every deck = exactly 52 cards
+
+Same card size, box, and production process
+
+Customization is content + visual, not manufacturing complexity
+
+RIVE-FIRST PHILOSOPHY (NON-NEGOTIABLE)
+
+Rive is the living UI layer
+
+motion
+
+feedback
+
+gamification
+
+confidence
+
+JavaScript is the logic layer
+
+math
+
+validation
+
+routing
+
+persistence
+
+accessibility fallbacks
+
+HTML/CSS is the structure layer
+
+semantics
+
+layout
+
+accessibility
+
+The product must work without Rive, but must feel incomplete without it.
+
+UPDATED PAGE FLOW (IMPORTANT)
+
+The flow is now clean, sequential, and intentional:
+
+Step 1 — customize.html
+
+Build your 52-card mix
+
+Drag-and-drop dashboard
+
+Category counts must total 52
+
+Gamified progress and feedback
+
+CTA → Next: Choose Card Back
+
+Step 2 — card-back.html
+
+Choose one premium card back
+
+Focused decision page
+
+Rive carousel preview
+
+One design applies to all 52 cards
+
+CTA → Continue to Preview
+
+Step 3 — preview.html
+
+Review & feel confident
+
+Category breakdown
+
+Selected card back applied visually
+
+CTA → Checkout
+
+Step 4 — checkout.html
+
+Shipping + payment (mock OK)
+
+Step 5 — success.html
+
+Celebration + reassurance
+
+GLOBAL STEP INDICATOR (RIVE STEPPER)
+
+A shared Rive step indicator appears at the top of every step page.
+
+Purpose
+
+Makes the experience feel like levels in a game
+
+Reduces anxiety
+
+Increases completion rate
+
+Creates continuity between pages
+
+RIVE STEPPER SPEC (GLOBAL)
+Artboard
+
+Name: Stepper
+
+Visual Structure
+
+5 steps:
+
+Build Deck
+
+Card Back
+
+Preview
+
+Checkout
+
+Done
+
+Each step has:
+
+inactive state
+
+active state
+
+completed state
+
+Motion Style
+
+Apple-like
+
+Calm
+
+Confident
+
+No bounce
+
+Stepper State Machine
+
+Name: StepperSM
+
+Inputs
+
+Number
+
+currentStep (0–4)
+
+Triggers
+
+stepAdvance
+
+stepBack
+
+Boolean
+
+reducedMotion (optional)
+
+Step Mapping
+Page	currentStep
+customize.html	0
+card-back.html	1
+preview.html	2
+checkout.html	3
+success.html	4
+JS Binding Contract (IMPORTANT)
+
+Each page must:
+
+Render a <canvas id="stepperCanvas">
+
+Initialize the stepper Rive instance
+
+Set currentStep on load
+
+Never animate stepper manually in CSS
+
+RIVE FILE STRATEGY (SAFE FOR MVP)
+During MVP (before Rive files are ready)
+
+All pages include:
+
+<canvas> placeholders
+
+JS init logic
+
+If .riv file is missing:
+
+app continues without breaking
+
+fallback text or static UI shows
+
+When Rive is ready
+
+Drop .riv file into /rive/ui.riv
+
+Enable runtime
+
+Motion activates automatically
+
+NO REFACTOR REQUIRED.
+
+FINAL FILE STRUCTURE (UPDATED)
+/src
+  index.html
+  customize.html
+  card-back.html
+  preview.html
+  checkout.html
+  success.html
+
+  /css
+    reset.css
+    tokens.css
+    base.css
+    components.css
+    layout.css
+    /pages
+      landing.css
+      customize.css
+      card-back.css
+      preview.css
+      checkout.css
+      success.css
+
+  /js
+    /core
+      state.js
+      storage.js
+      dom.js
+      riveRuntime.js
+    /features
+      dragToken.js
+      bins.js
+      progress.js
+      stepperRive.js
+      carouselRive.js
+      previewRive.js
+      checkoutRive.js
+      successRive.js
+      a11y.js
+    /pages
+      landing.page.js
+      customize.page.js
+      cardBack.page.js
+      preview.page.js
+      checkout.page.js
+      success.page.js
+
+  /rive
+    ui.riv   ← added later
+
+PAGE-BY-PAGE RIVE RESPONSIBILITIES (UPDATED)
+customize.html
+
+Rive usage
+
+DeckBuilderUI artboard
+
+Bin hover/success/fail
+
+Progress bar animation
+
+“52 Complete” celebration
+
+Stepper (currentStep = 0)
+
+card-back.html
+
+Rive usage
+
+CardBackCarousel artboard
+
+Prev / Next / Confirm transitions
+
+Locked selection animation
+
+Stepper (currentStep = 1)
+
+preview.html
+
+Rive usage
+
+PreviewSummary artboard
+
+Category bars fill
+
+Selected back applied
+
+Stepper (currentStep = 2)
+
+checkout.html
+
+Rive usage
+
+CheckoutUI artboard
+
+Stepper (currentStep = 3)
+
+Field focus & validation feedback
+
+success.html
+
+Rive usage
+
+Success artboard
+
+Celebration → calm idle
+
+Stepper (currentStep = 4)
+
+DATA CONTRACT (UNCHANGED)
+
+Stored in localStorage as deckConfigV1:
+
+{
+  "counts": {
+    "romantic": 20,
+    "deep": 10,
+    "naughty": 12,
+    "friendship": 6,
+    "playful": 4
+  },
+  "total": 52,
+  "cardBackDesign": "rose-noir",
+  "cardBackIndex": 1
+}
+
+BUILD ORDER (UPDATED)
+Phase 1 — Structure (NO RIVE)
+
+Create all pages
+
+Build CSS system (tokens, components, layout)
+
+Build logic for customize → card-back → preview
+
+Phase 2 — Logic & Gating
+
+Enforce 52 rule
+
+Enforce page guards (redirect if step skipped)
+
+Persist state across pages
+
+Phase 3 — Rive Plumbing (NO ART YET)
+
+Add <canvas> elements everywhere
+
+Add riveRuntime.js
+
+Add stepper init everywhere
+
+Add feature-specific Rive init stubs
+
+Phase 4 — Drop Rive Files In
+
+Build Rive artboards
+
+Plug .riv file
+
+Fine-tune motion
+
+QUALITY BAR
+
+No cluttered pages
+
+Clear progression
+
+Motion always communicates state
+
+Rive enhances, never blocks
+
+Accessible, responsive, intentional
+
+END OF MASTER SPEC
