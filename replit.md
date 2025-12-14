@@ -44,8 +44,13 @@ Preferred communication style: Simple, everyday language.
 1. **Customize**: Adjust category counts with +/- controls, must total exactly 52
 2. **Card Back**: Select from predefined card back designs via carousel
 3. **Preview**: Review deck composition and card back selection
-4. **Checkout**: Shipping form with validation using react-hook-form and Zod
+4. **Checkout**: Shipping form with validation, quantity selector (1-10 decks), dynamic pricing
 5. **Success**: Order confirmation with deck state cleanup
+
+### Pricing & Quantity
+- **Base Price**: $29.99 per deck (DECK_PRICE constant in schema)
+- **Quantity Range**: 1-10 decks per order (MAX_QUANTITY constant)
+- **Shipping**: Free for all orders
 
 ## External Dependencies
 
