@@ -41,6 +41,7 @@ export class MemStorage implements IStorage {
     const order: Order = { 
       ...insertOrder, 
       id,
+      quantity: insertOrder.quantity ?? 1,
       status: "pending"
     };
     this.orders.set(id, order);

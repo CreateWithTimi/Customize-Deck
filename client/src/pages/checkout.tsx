@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getDeckState, validations } from "@/lib/deck-state";
-import { shippingFormSchema, ShippingForm, CARD_BACK_DESIGNS, CATEGORIES, CATEGORY_META } from "@shared/schema";
+import { shippingFormSchema, ShippingForm, CARD_BACK_DESIGNS, CATEGORIES, CATEGORY_META, DECK_PRICE, MAX_QUANTITY } from "@shared/schema";
 import { StepIndicator } from "@/components/step-indicator";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Heart, ArrowLeft, Lock, CreditCard } from "lucide-react";
+import { Heart, ArrowLeft, Lock, CreditCard, Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -51,6 +51,10 @@ export default function Checkout() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [config, setConfig] = useState(getDeckState);
+  const [quantity, setQuantity] = useState(1);
+
+  const subtotal = DECK_PRICE * quantity;
+  const total = subtotal;
 
   const form = useForm<ShippingForm>({
     resolver: zodResolver(shippingFormSchema),
@@ -69,6 +73,7 @@ export default function Checkout() {
     mutationFn: async (data: ShippingForm) => {
       const response = await apiRequest("POST", "/api/orders", {
         deckConfig: config,
+        quantity,
         shippingName: data.name,
         shippingEmail: data.email,
         shippingAddress: data.address,
@@ -319,7 +324,7 @@ export default function Checkout() {
                   ) : (
                     <>
                       <Lock className="h-4 w-4" />
-                      Place Order - $29.99
+                      Place Order - ${total.toFixed(2)}
                     </>
                   )}
                 </Button>
@@ -353,6 +358,36 @@ export default function Checkout() {
                 </div>
               </div>
 
+              {/* Quantity Selector */}
+              <div className="flex items-center justify-between py-4 border-t border-b mb-4">
+                <span className="text-sm font-medium">Quantity</span>
+                <div className="flex items-center gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    disabled={quantity <= 1}
+                    data-testid="button-quantity-minus"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="w-8 text-center font-semibold" data-testid="text-quantity">
+                    {quantity}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setQuantity(Math.min(MAX_QUANTITY, quantity + 1))}
+                    disabled={quantity >= MAX_QUANTITY}
+                    data-testid="button-quantity-plus"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
               <div className="space-y-2 text-sm">
                 {CATEGORIES.map((category) => {
                   const meta = CATEGORY_META[category];
@@ -376,17 +411,19 @@ export default function Checkout() {
               </div>
 
               <div className="border-t mt-4 pt-4 space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span>$29.99</span>
+                <div className="flex justify-between gap-2">
+                  <span className="text-muted-foreground">
+                    {quantity > 1 ? `${quantity} decks × $${DECK_PRICE.toFixed(2)}` : "Subtotal"}
+                  </span>
+                  <span>${subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-2">
                   <span className="text-muted-foreground">Shipping</span>
                   <span className="text-primary">Free</span>
                 </div>
-                <div className="flex justify-between font-semibold text-lg pt-2 border-t">
+                <div className="flex justify-between gap-2 font-semibold text-lg pt-2 border-t">
                   <span>Total</span>
-                  <span>$29.99</span>
+                  <span>${total.toFixed(2)}</span>
                 </div>
               </div>
             </Card>

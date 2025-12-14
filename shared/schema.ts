@@ -84,10 +84,15 @@ export const deckConfigSchema = z.object({
 
 export type DeckConfig = z.infer<typeof deckConfigSchema>;
 
+// Pricing
+export const DECK_PRICE = 29.99;
+export const MAX_QUANTITY = 10;
+
 // Order schema
 export const orders = pgTable("orders", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   deckConfig: jsonb("deck_config").notNull(),
+  quantity: integer("quantity").notNull().default(1),
   shippingName: text("shipping_name").notNull(),
   shippingEmail: text("shipping_email").notNull(),
   shippingAddress: text("shipping_address").notNull(),

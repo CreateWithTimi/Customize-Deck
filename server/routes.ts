@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertOrderSchema, deckConfigSchema, REQUIRED_TOTAL } from "@shared/schema";
+import { insertOrderSchema, deckConfigSchema, REQUIRED_TOTAL, MAX_QUANTITY } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(
@@ -15,6 +15,7 @@ export async function registerRoutes(
       // Validate request body
       const orderSchema = z.object({
         deckConfig: deckConfigSchema,
+        quantity: z.number().int().min(1).max(MAX_QUANTITY),
         shippingName: z.string().min(2),
         shippingEmail: z.string().email(),
         shippingAddress: z.string().min(5),
@@ -43,6 +44,7 @@ export async function registerRoutes(
       // Create the order
       const order = await storage.createOrder({
         deckConfig: validated.deckConfig,
+        quantity: validated.quantity,
         shippingName: validated.shippingName,
         shippingEmail: validated.shippingEmail,
         shippingAddress: validated.shippingAddress,
