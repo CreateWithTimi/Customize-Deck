@@ -14,12 +14,104 @@ import {
   Clock,
 } from "lucide-react";
 
+function HeroCardDeck() {
+  const categories = [
+    { name: "Romantic", color: "from-rose-500 to-pink-600", icon: Heart },
+    { name: "Deep", color: "from-indigo-500 to-purple-600", icon: MessageCircle },
+    { name: "Playful", color: "from-amber-400 to-orange-500", icon: Sparkles },
+    { name: "Friendship", color: "from-emerald-400 to-teal-500", icon: Star },
+    { name: "Naughty", color: "from-fuchsia-500 to-pink-500", icon: Shuffle },
+  ];
+
+  return (
+    <div className="relative w-full max-w-md mx-auto h-80 md:h-96" data-testid="hero-card-deck">
+      {/* Rive placeholder - this div will hold the canvas later */}
+      <div 
+        id="hero-rive-canvas" 
+        className="absolute inset-0 z-10 pointer-events-none"
+        aria-label="Interactive card deck animation"
+      />
+      
+      {/* Static card stack - visual fallback */}
+      <div className="relative w-full h-full flex items-center justify-center">
+        {/* Glow effect behind cards */}
+        <div className="absolute inset-0 bg-gradient-to-t from-primary/20 via-primary/5 to-transparent rounded-3xl blur-3xl" />
+        
+        {/* Floating cards with stagger effect */}
+        {categories.map((cat, index) => {
+          const rotation = (index - 2) * 8;
+          const translateY = Math.abs(index - 2) * 8;
+          const translateX = (index - 2) * 24;
+          const zIndex = 5 - Math.abs(index - 2);
+          const delay = index * 0.1;
+          
+          return (
+            <div
+              key={cat.name}
+              className="absolute w-44 h-64 md:w-52 md:h-72 rounded-xl shadow-2xl transition-all duration-700 ease-out"
+              style={{
+                transform: `rotate(${rotation}deg) translateY(${translateY}px) translateX(${translateX}px)`,
+                zIndex,
+                animationDelay: `${delay}s`,
+              }}
+            >
+              {/* Card face */}
+              <div className={`w-full h-full rounded-xl bg-gradient-to-br ${cat.color} p-4 flex flex-col justify-between shadow-lg border border-white/20`}>
+                {/* Card pattern overlay */}
+                <div className="absolute inset-0 rounded-xl opacity-10 bg-[radial-gradient(circle_at_50%_50%,white_1px,transparent_1px)] bg-[length:20px_20px]" />
+                
+                {/* Top decoration */}
+                <div className="flex justify-between items-start relative z-10">
+                  <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                    <cat.icon className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="w-6 h-6 rounded-full bg-white/10" />
+                </div>
+                
+                {/* Center heart pattern */}
+                <div className="flex-1 flex items-center justify-center relative z-10">
+                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                    <Heart className="w-10 h-10 md:w-12 md:h-12 text-white/80" />
+                  </div>
+                </div>
+                
+                {/* Bottom label */}
+                <div className="text-center relative z-10">
+                  <span className="text-white/90 text-sm font-medium tracking-wide uppercase">
+                    {cat.name}
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+        
+        {/* Floating particles effect */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-2 h-2 rounded-full bg-primary/30 animate-pulse"
+              style={{
+                left: `${15 + i * 15}%`,
+                top: `${20 + (i % 3) * 25}%`,
+                animationDelay: `${i * 0.3}s`,
+                animationDuration: `${2 + i * 0.5}s`,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between px-4 md:px-6">
+        <div className="container flex h-16 items-center justify-between gap-4 px-4 md:px-6">
           <Link href="/" className="flex items-center gap-2">
             <Heart className="h-6 w-6 text-primary" />
             <span className="font-semibold text-lg">DeckBuilder</span>
@@ -29,47 +121,59 @@ export default function Landing() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden min-h-[90vh] flex items-center">
+        {/* Animated background gradients */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10" />
-        <div className="container relative px-4 py-24 md:py-32 lg:py-40">
-          <div className="mx-auto max-w-3xl text-center space-y-8">
-            <div className="inline-flex items-center gap-2 rounded-full border bg-muted/50 px-4 py-1.5 text-sm">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <span>New: 5 Category Themes Available</span>
-            </div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-rose-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl" />
+        
+        <div className="container relative px-4 py-16 md:py-24">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Left: Text content */}
+            <div className="text-center lg:text-left space-y-8">
+              <div className="inline-flex items-center gap-2 rounded-full border bg-muted/50 px-4 py-1.5 text-sm">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span>New: 5 Category Themes Available</span>
+              </div>
 
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-              Build Your Perfect
-              <span className="block text-primary">Conversation Deck</span>
-            </h1>
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+                Build Your Perfect
+                <span className="block text-primary">Conversation Deck</span>
+              </h1>
 
-            <p className="mx-auto max-w-2xl text-lg md:text-xl text-muted-foreground">
-              Create a customized 52-card deck tailored to your relationship.
-              Choose your mix of romantic, deep, playful, and more —
-              delivered to your door.
-            </p>
+              <p className="max-w-xl text-lg md:text-xl text-muted-foreground lg:pr-8">
+                Create a customized 52-card deck tailored to your relationship.
+                Choose your mix of romantic, deep, playful, and more —
+                delivered to your door.
+              </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/customize">
-                <Button size="lg" className="gap-2 text-lg px-8" data-testid="button-start-building">
-                  Start Building
-                  <ChevronRight className="h-5 w-5" />
+              <div className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4">
+                <Link href="/customize">
+                  <Button size="lg" className="gap-2 text-lg px-8" data-testid="button-start-building">
+                    Start Building
+                    <ChevronRight className="h-5 w-5" />
+                  </Button>
+                </Link>
+                <Button variant="outline" size="lg" className="gap-2" data-testid="button-learn-more">
+                  Learn More
                 </Button>
-              </Link>
-              <Button variant="outline" size="lg" className="gap-2" data-testid="button-learn-more">
-                Learn More
-              </Button>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 pt-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                  <Shield className="h-4 w-4" />
+                  <span>Premium Quality</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Clock className="h-4 w-4" />
+                  <span>Ships in 3-5 Days</span>
+                </div>
+              </div>
             </div>
 
-            <div className="flex items-center justify-center gap-6 pt-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1.5">
-                <Shield className="h-4 w-4" />
-                <span>Premium Quality</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Clock className="h-4 w-4" />
-                <span>Ships in 3-5 Days</span>
-              </div>
+            {/* Right: Card deck visual centerpiece */}
+            <div className="order-first lg:order-last">
+              <HeroCardDeck />
             </div>
           </div>
         </div>
