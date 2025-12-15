@@ -1,3 +1,4 @@
+import React from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -45,18 +46,27 @@ export default function Landing() {
 
             <p className="mx-auto max-w-2xl text-lg md:text-xl text-muted-foreground">
               Create a customized 52-card deck tailored to your relationship.
-              Choose your mix of romantic, deep, playful, and more —
-              delivered to your door.
+              Choose your mix of romantic, deep, playful, and more — delivered
+              to your door.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/customize">
-                <Button size="lg" className="gap-2 text-lg px-8" data-testid="button-start-building">
+                <Button
+                  size="lg"
+                  className="gap-2 text-lg px-8"
+                  data-testid="button-start-building"
+                >
                   Start Building
                   <ChevronRight className="h-5 w-5" />
                 </Button>
               </Link>
-              <Button variant="outline" size="lg" className="gap-2" data-testid="button-learn-more">
+              <Button
+                variant="outline"
+                size="lg"
+                className="gap-2"
+                data-testid="button-learn-more"
+              >
                 Learn More
               </Button>
             </div>
@@ -83,7 +93,8 @@ export default function Landing() {
               Why Choose Custom Decks?
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Every relationship is unique. Your conversation cards should be too.
+              Every relationship is unique. Your conversation cards should be
+              too.
             </p>
           </div>
 
@@ -94,7 +105,8 @@ export default function Landing() {
               </div>
               <h3 className="text-xl font-semibold">Personalized Mix</h3>
               <p className="text-muted-foreground">
-                Choose exactly how many cards from each category — romantic, deep, playful, and more.
+                Choose exactly how many cards from each category — romantic,
+                deep, playful, and more.
               </p>
             </Card>
 
@@ -104,7 +116,8 @@ export default function Landing() {
               </div>
               <h3 className="text-xl font-semibold">Curated Questions</h3>
               <p className="text-muted-foreground">
-                Every question is carefully crafted to spark meaningful conversations and deeper connection.
+                Every question is carefully crafted to spark meaningful
+                conversations and deeper connection.
               </p>
             </Card>
 
@@ -124,7 +137,8 @@ export default function Landing() {
               </div>
               <h3 className="text-xl font-semibold">Premium Quality</h3>
               <p className="text-muted-foreground">
-                Thick, luxurious cards with your choice of five stunning card back designs.
+                Thick, luxurious cards with your choice of five stunning card
+                back designs.
               </p>
             </Card>
 
@@ -134,7 +148,8 @@ export default function Landing() {
               </div>
               <h3 className="text-xl font-semibold">5 Categories</h3>
               <p className="text-muted-foreground">
-                Romantic, Deep, Naughty, Friendship, and Playful — find the perfect blend.
+                Romantic, Deep, Naughty, Friendship, and Playful — find the
+                perfect blend.
               </p>
             </Card>
 
@@ -144,7 +159,8 @@ export default function Landing() {
               </div>
               <h3 className="text-xl font-semibold">Gamified Builder</h3>
               <p className="text-muted-foreground">
-                Our intuitive deck builder makes customization fun and satisfying.
+                Our intuitive deck builder makes customization fun and
+                satisfying.
               </p>
             </Card>
           </div>
@@ -155,9 +171,7 @@ export default function Landing() {
       <section className="py-24">
         <div className="container px-4">
           <div className="text-center space-y-4 mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold">
-              How It Works
-            </h2>
+            <h2 className="text-3xl md:text-4xl font-bold">How It Works</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Build your custom deck in just a few simple steps
             </p>
@@ -168,22 +182,26 @@ export default function Landing() {
               {
                 step: 1,
                 title: "Build Your Mix",
-                description: "Choose how many cards from each category to create your perfect 52-card deck.",
+                description:
+                  "Choose how many cards from each category to create your perfect 52-card deck.",
               },
               {
                 step: 2,
                 title: "Pick Card Back",
-                description: "Select from five premium card back designs to match your style.",
+                description:
+                  "Select from five premium card back designs to match your style.",
               },
               {
                 step: 3,
                 title: "Preview & Order",
-                description: "Review your selections and complete your order securely.",
+                description:
+                  "Review your selections and complete your order securely.",
               },
               {
                 step: 4,
                 title: "Enjoy Together",
-                description: "Receive your custom deck and start meaningful conversations.",
+                description:
+                  "Receive your custom deck and start meaningful conversations.",
               },
             ].map((item) => (
               <div key={item.step} className="text-center space-y-4">
@@ -191,7 +209,9 @@ export default function Landing() {
                   {item.step}
                 </div>
                 <h3 className="text-lg font-semibold">{item.title}</h3>
-                <p className="text-sm text-muted-foreground">{item.description}</p>
+                <p className="text-sm text-muted-foreground">
+                  {item.description}
+                </p>
               </div>
             ))}
           </div>
@@ -202,9 +222,7 @@ export default function Landing() {
       <section className="py-24 bg-muted/30">
         <div className="container px-4">
           <div className="text-center space-y-4 mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold">
-              Loved by Couples
-            </h2>
+            <h2 className="text-3xl md:text-4xl font-bold">Loved by Couples</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               See what others are saying about their custom decks
             </p>
@@ -213,17 +231,20 @@ export default function Landing() {
           <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
             {[
               {
-                quote: "We've been together for 10 years and still discovered new things about each other. These cards are magic.",
+                quote:
+                  "We've been together for 10 years and still discovered new things about each other. These cards are magic.",
                 name: "Sarah & Mike",
                 relationship: "Married 10 years",
               },
               {
-                quote: "Perfect for date nights! We love the mix of deep questions and playful ones. Highly recommend.",
+                quote:
+                  "Perfect for date nights! We love the mix of deep questions and playful ones. Highly recommend.",
                 name: "Jessica & Tom",
                 relationship: "Dating 2 years",
               },
               {
-                quote: "The quality is amazing and being able to customize the mix made it so personal to us.",
+                quote:
+                  "The quality is amazing and being able to customize the mix made it so personal to us.",
                 name: "Alex & Jordan",
                 relationship: "Engaged",
               },
@@ -237,7 +258,9 @@ export default function Landing() {
                     />
                   ))}
                 </div>
-                <p className="text-muted-foreground italic">"{testimonial.quote}"</p>
+                <p className="text-muted-foreground italic">
+                  "{testimonial.quote}"
+                </p>
                 <div>
                   <p className="font-semibold">{testimonial.name}</p>
                   <p className="text-sm text-muted-foreground">
@@ -262,7 +285,11 @@ export default function Landing() {
               quality time together.
             </p>
             <Link href="/customize">
-              <Button size="lg" className="gap-2 text-lg px-8" data-testid="button-cta-start">
+              <Button
+                size="lg"
+                className="gap-2 text-lg px-8"
+                data-testid="button-cta-start"
+              >
                 Build Your Deck
                 <ChevronRight className="h-5 w-5" />
               </Button>
