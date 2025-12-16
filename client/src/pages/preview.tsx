@@ -61,7 +61,7 @@ export default function Preview() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between px-4 md:px-6">
+        <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4 md:px-6">
           <Link href="/" className="flex items-center gap-2">
             <Heart className="h-6 w-6 text-primary" />
             <span className="font-semibold text-lg">DeckBuilder</span>
@@ -72,13 +72,13 @@ export default function Preview() {
 
       {/* Step Indicator */}
       <div className="border-b bg-muted/30">
-        <div className="container px-4">
+        <div className="container mx-auto px-4">
           <StepIndicator currentStep={2} />
         </div>
       </div>
 
       {/* Main Content */}
-      <main className="container px-4 py-8 md:py-12">
+      <main className="container mx-auto px-4 py-8 md:py-12">
         {/* Back link */}
         <Link href="/card-back">
           <Button variant="ghost" className="gap-2 mb-6" data-testid="button-back-cardback">
