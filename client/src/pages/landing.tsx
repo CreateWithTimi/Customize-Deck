@@ -1,7 +1,9 @@
+import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { RiveInstance, RiveManager } from "@/lib/rive-runtime";
 import {
   Heart,
   MessageCircle,
@@ -15,93 +17,42 @@ import {
 } from "lucide-react";
 
 function HeroCardDeck() {
-  const categories = [
-    { name: "Romantic", color: "from-rose-500 to-pink-600", icon: Heart },
-    { name: "Deep", color: "from-indigo-500 to-purple-600", icon: MessageCircle },
-    { name: "Playful", color: "from-amber-400 to-orange-500", icon: Sparkles },
-    { name: "Friendship", color: "from-emerald-400 to-teal-500", icon: Star },
-    { name: "Naughty", color: "from-fuchsia-500 to-pink-500", icon: Shuffle },
-  ];
+  const [isRiveLoaded, setIsRiveLoaded] = useState(false);
+  const riveRef = useRef<RiveInstance | null>(null);
+
+  useEffect(() => {
+    const hero = new RiveInstance({
+      canvasId: "hero-rive-canvas",
+      rivePath: "/ui.riv",
+      artboardName: "Hero",
+      stateMachineName: "HeroState",
+    });
+
+    hero.init().then((success) => {
+      if (success) {
+        setIsRiveLoaded(true);
+        riveRef.current = hero;
+        RiveManager.register("hero", hero);
+      }
+    });
+
+    return () => {
+      hero.dispose();
+      riveRef.current = null;
+    };
+  }, []);
 
   return (
-    <div className="relative w-full max-w-xs mx-auto h-72 md:h-80" data-testid="hero-card-deck">
-      {/* Rive placeholder - this div will hold the canvas later */}
-      <div 
-        id="hero-rive-canvas" 
-        className="absolute inset-0 z-10 pointer-events-none"
+    <div className="relative w-full max-w-md mx-auto aspect-square" data-testid="hero-card-deck">
+      {/* Glow effect behind animation */}
+      <div className="absolute inset-0 bg-gradient-to-t from-primary/20 via-primary/5 to-transparent rounded-3xl blur-3xl" />
+      
+      {/* Rive canvas */}
+      <canvas
+        id="hero-rive-canvas"
+        className="relative z-10 w-full h-full"
         aria-label="Interactive card deck animation"
       />
-      
-      {/* Static card stack - visual fallback */}
-      <div className="relative w-full h-full flex items-center justify-center">
-        {/* Glow effect behind cards */}
-        <div className="absolute inset-0 bg-gradient-to-t from-primary/20 via-primary/5 to-transparent rounded-3xl blur-3xl" />
-        
-        {/* Floating cards with stagger effect */}
-        {categories.map((cat, index) => {
-          const rotation = (index - 2) * 6;
-          const translateY = Math.abs(index - 2) * 6;
-          const translateX = (index - 2) * 18;
-          const zIndex = 5 - Math.abs(index - 2);
-          const delay = index * 0.1;
-          
-          return (
-            <div
-              key={cat.name}
-              className="absolute w-36 h-52 md:w-44 md:h-60 rounded-xl shadow-2xl transition-all duration-700 ease-out"
-              style={{
-                transform: `rotate(${rotation}deg) translateY(${translateY}px) translateX(${translateX}px)`,
-                zIndex,
-                animationDelay: `${delay}s`,
-              }}
-            >
-              {/* Card face */}
-              <div className={`w-full h-full rounded-xl bg-gradient-to-br ${cat.color} p-4 flex flex-col justify-between shadow-lg border border-white/20`}>
-                {/* Card pattern overlay */}
-                <div className="absolute inset-0 rounded-xl opacity-10 bg-[radial-gradient(circle_at_50%_50%,white_1px,transparent_1px)] bg-[length:20px_20px]" />
-                
-                {/* Top decoration */}
-                <div className="flex justify-between items-start relative z-10">
-                  <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                    <cat.icon className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="w-6 h-6 rounded-full bg-white/10" />
-                </div>
-                
-                {/* Center heart pattern */}
-                <div className="flex-1 flex items-center justify-center relative z-10">
-                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                    <Heart className="w-10 h-10 md:w-12 md:h-12 text-white/80" />
-                  </div>
-                </div>
-                
-                {/* Bottom label */}
-                <div className="text-center relative z-10">
-                  <span className="text-white/90 text-sm font-medium tracking-wide uppercase">
-                    {cat.name}
-                  </span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-        
-        {/* Floating particles effect */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(6)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 rounded-full bg-primary/30 animate-pulse"
-              style={{
-                left: `${15 + i * 15}%`,
-                top: `${20 + (i % 3) * 25}%`,
-                animationDelay: `${i * 0.3}s`,
-                animationDuration: `${2 + i * 0.5}s`,
-              }}
-            />
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
