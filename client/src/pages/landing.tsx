@@ -52,7 +52,7 @@ function HeroCardDeck() {
 
   return (
     <div 
-      className="relative w-full max-w-md lg:max-w-lg xl:max-w-xl mx-auto aspect-square" 
+      className="relative w-full max-w-sm sm:max-w-md lg:max-w-none mx-auto aspect-square" 
       data-testid="hero-card-deck"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
