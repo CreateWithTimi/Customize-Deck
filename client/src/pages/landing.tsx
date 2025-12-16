@@ -111,7 +111,7 @@ export default function Landing() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between gap-4 px-4 md:px-6">
+        <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4 md:px-6">
           <Link href="/" className="flex items-center gap-2">
             <Heart className="h-6 w-6 text-primary" />
             <span className="font-semibold text-lg">DeckBuilder</span>
@@ -127,8 +127,8 @@ export default function Landing() {
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-rose-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl" />
         
-        <div className="container relative px-4 py-16 md:py-24">
-          <div className="grid lg:grid-cols-[1.3fr_1fr] gap-8 lg:gap-12 items-center">
+        <div className="container mx-auto relative px-4 py-16 md:py-24">
+          <div className="grid lg:grid-cols-[1.3fr_1fr] gap-8 lg:gap-12 items-center max-w-7xl mx-auto">
             {/* Left: Text content */}
             <div className="text-center lg:text-left space-y-8">
               <div className="inline-flex items-center gap-2 rounded-full border bg-muted/50 px-4 py-1.5 text-sm">
@@ -181,7 +181,7 @@ export default function Landing() {
 
       {/* Features Section */}
       <section className="py-24 bg-muted/30">
-        <div className="container px-4">
+        <div className="container mx-auto px-4">
           <div className="text-center space-y-4 mb-16">
             <h2 className="text-3xl md:text-4xl font-bold">
               Why Choose Custom Decks?
@@ -257,7 +257,7 @@ export default function Landing() {
 
       {/* How It Works Section */}
       <section className="py-24">
-        <div className="container px-4">
+        <div className="container mx-auto px-4">
           <div className="text-center space-y-4 mb-16">
             <h2 className="text-3xl md:text-4xl font-bold">
               How It Works
@@ -304,7 +304,7 @@ export default function Landing() {
 
       {/* Testimonials Section */}
       <section className="py-24 bg-muted/30">
-        <div className="container px-4">
+        <div className="container mx-auto px-4">
           <div className="text-center space-y-4 mb-16">
             <h2 className="text-3xl md:text-4xl font-bold">
               Loved by Couples
@@ -356,28 +356,30 @@ export default function Landing() {
 
       {/* CTA Section */}
       <section className="py-32">
-        <div className="container px-4">
-          <div className="mx-auto max-w-3xl text-center space-y-8">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-3xl text-center space-y-6">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">
               Ready to Spark Deeper Connections?
             </h2>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Create your custom conversation deck today and transform your
               quality time together.
             </p>
-            <Link href="/customize">
-              <Button size="lg" className="gap-2 text-lg px-8" data-testid="button-cta-start">
-                Build Your Deck
-                <ChevronRight className="h-5 w-5" />
-              </Button>
-            </Link>
+            <div className="pt-4">
+              <Link href="/customize">
+                <Button size="lg" className="gap-2 text-lg px-8" data-testid="button-cta-start">
+                  Build Your Deck
+                  <ChevronRight className="h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="border-t py-12">
-        <div className="container px-4">
+        <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <Heart className="h-5 w-5 text-primary" />
