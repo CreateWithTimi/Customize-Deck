@@ -80,7 +80,7 @@ export function CategoryBin({
       data-testid={`category-bin-${category}`}
     >
       <div className="p-4 md:p-6">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
             <div
               className={cn(
@@ -101,13 +101,13 @@ export function CategoryBin({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 md:gap-3">
+          <div className="flex items-center justify-center sm:justify-end gap-2 md:gap-3">
             <Button
               variant="outline"
               size="icon"
               onClick={onDecrement}
               disabled={disabled || !canDecrement}
-              className="h-8 w-8 md:h-10 md:w-10 rounded-full"
+              className="h-10 w-10 md:h-10 md:w-10 rounded-full"
               data-testid={`button-decrement-${category}`}
             >
               <Minus className="h-4 w-4" />
@@ -115,7 +115,7 @@ export function CategoryBin({
 
             <div
               className={cn(
-                "flex h-10 w-14 md:h-12 md:w-16 items-center justify-center rounded-lg font-bold text-lg md:text-xl",
+                "flex h-10 w-16 md:h-12 md:w-16 items-center justify-center rounded-lg font-bold text-lg md:text-xl",
                 colors.bg,
                 colors.text,
                 "border",
@@ -131,7 +131,7 @@ export function CategoryBin({
               size="icon"
               onClick={onIncrement}
               disabled={disabled || !canIncrement}
-              className="h-8 w-8 md:h-10 md:w-10 rounded-full"
+              className="h-10 w-10 md:h-10 md:w-10 rounded-full"
               data-testid={`button-increment-${category}`}
             >
               <Plus className="h-4 w-4" />
