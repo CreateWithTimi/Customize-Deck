@@ -24,7 +24,7 @@ function HeroCardDeck() {
   ];
 
   return (
-    <div className="relative w-full max-w-md mx-auto h-80 md:h-96" data-testid="hero-card-deck">
+    <div className="relative w-full max-w-xs mx-auto h-72 md:h-80" data-testid="hero-card-deck">
       {/* Rive placeholder - this div will hold the canvas later */}
       <div 
         id="hero-rive-canvas" 
@@ -39,16 +39,16 @@ function HeroCardDeck() {
         
         {/* Floating cards with stagger effect */}
         {categories.map((cat, index) => {
-          const rotation = (index - 2) * 8;
-          const translateY = Math.abs(index - 2) * 8;
-          const translateX = (index - 2) * 24;
+          const rotation = (index - 2) * 6;
+          const translateY = Math.abs(index - 2) * 6;
+          const translateX = (index - 2) * 18;
           const zIndex = 5 - Math.abs(index - 2);
           const delay = index * 0.1;
           
           return (
             <div
               key={cat.name}
-              className="absolute w-44 h-64 md:w-52 md:h-72 rounded-xl shadow-2xl transition-all duration-700 ease-out"
+              className="absolute w-36 h-52 md:w-44 md:h-60 rounded-xl shadow-2xl transition-all duration-700 ease-out"
               style={{
                 transform: `rotate(${rotation}deg) translateY(${translateY}px) translateX(${translateX}px)`,
                 zIndex,
@@ -128,7 +128,7 @@ export default function Landing() {
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl" />
         
         <div className="container relative px-4 py-16 md:py-24">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <div className="grid lg:grid-cols-[1.3fr_1fr] gap-8 lg:gap-12 items-center">
             {/* Left: Text content */}
             <div className="text-center lg:text-left space-y-8">
               <div className="inline-flex items-center gap-2 rounded-full border bg-muted/50 px-4 py-1.5 text-sm">
