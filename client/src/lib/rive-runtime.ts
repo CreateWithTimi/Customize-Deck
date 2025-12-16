@@ -1,18 +1,31 @@
 import { Rive, StateMachineInput } from "@rive-app/canvas";
 
+// Configuration for a Rive animation instance
+export interface RiveConfig {
+  canvasId: string;
+  rivePath: string;
+  artboardName?: string;  // Optional: specify which artboard to use
+  stateMachineName: string;
+  autoplay?: boolean;
+}
+
 export class RiveInstance {
   canvasId: string;
   rivePath: string;
+  artboardName?: string;
   stateMachineName: string;
+  autoplay: boolean;
   rive: Rive | null = null;
   inputs: Record<string, StateMachineInput> = {};
   isReady: boolean = false;
   resizeObserver: ResizeObserver | null = null;
 
-  constructor(canvasId: string, rivePath: string, stateMachineName: string) {
-    this.canvasId = canvasId;
-    this.rivePath = rivePath;
-    this.stateMachineName = stateMachineName;
+  constructor(config: RiveConfig) {
+    this.canvasId = config.canvasId;
+    this.rivePath = config.rivePath;
+    this.artboardName = config.artboardName;
+    this.stateMachineName = config.stateMachineName;
+    this.autoplay = config.autoplay ?? true;
   }
 
   async init(): Promise<boolean> {
@@ -26,8 +39,9 @@ export class RiveInstance {
       this.rive = new Rive({
         src: this.rivePath,
         canvas: canvas,
+        artboard: this.artboardName,  // Load specific artboard
         stateMachines: this.stateMachineName,
-        autoplay: true,
+        autoplay: this.autoplay,
         onLoad: () => {
           this._onRiveLoaded();
         },
@@ -95,7 +109,7 @@ export class RiveInstance {
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
-    this.rive.resizeDrawingSurfaceToCanvas();
+    this.rive?.resizeDrawingSurfaceToCanvas();
   }
 
   setNumber(inputName: string, value: number): boolean {
