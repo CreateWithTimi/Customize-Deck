@@ -42,15 +42,28 @@ function HeroCardDeck() {
     };
   }, []);
 
+  const handleMouseEnter = () => {
+    riveRef.current?.setBoolean("isHover", true);
+  };
+
+  const handleMouseLeave = () => {
+    riveRef.current?.setBoolean("isHover", false);
+  };
+
   return (
-    <div className="relative w-full max-w-md mx-auto aspect-square" data-testid="hero-card-deck">
+    <div 
+      className="relative w-full max-w-xl mx-auto h-[400px] md:h-[500px] lg:h-[550px]" 
+      data-testid="hero-card-deck"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       {/* Glow effect behind animation */}
       <div className="absolute inset-0 bg-gradient-to-t from-primary/20 via-primary/5 to-transparent rounded-3xl blur-3xl" />
       
       {/* Rive canvas */}
       <canvas
         id="hero-rive-canvas"
-        className="relative z-10 w-full h-full"
+        className="relative z-10 w-full h-full cursor-pointer"
         aria-label="Interactive card deck animation"
       />
     </div>
