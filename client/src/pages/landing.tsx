@@ -92,7 +92,7 @@ export default function Landing() {
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl" />
         
         <div className="container mx-auto relative px-4 py-16 md:py-24">
-          <div className="grid lg:grid-cols-[1fr_1.2fr] gap-8 lg:gap-12 items-center max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-[1.3fr_1fr] gap-8 lg:gap-12 items-center max-w-7xl mx-auto">
             {/* Left: Text content */}
             <div className="text-center lg:text-left space-y-8">
               <div className="inline-flex items-center gap-2 rounded-full border bg-muted/50 px-4 py-1.5 text-sm">

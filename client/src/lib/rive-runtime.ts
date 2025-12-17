@@ -1,4 +1,4 @@
-import { Rive, StateMachineInput } from "@rive-app/canvas";
+import { Rive, StateMachineInput, Layout, Fit, Alignment } from "@rive-app/canvas";
 
 // Configuration for a Rive animation instance
 export interface RiveConfig {
@@ -39,9 +39,13 @@ export class RiveInstance {
       this.rive = new Rive({
         src: this.rivePath,
         canvas: canvas,
-        artboard: this.artboardName,  // Load specific artboard
+        artboard: this.artboardName,
         stateMachines: this.stateMachineName,
         autoplay: this.autoplay,
+        layout: new Layout({
+          fit: Fit.Contain,
+          alignment: Alignment.Center,
+        }),
         onLoad: () => {
           this._onRiveLoaded();
         },
