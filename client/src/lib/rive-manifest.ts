@@ -113,6 +113,30 @@ export const RIVE_ASSETS: Record<string, RiveAssetDefinition> = {
     description: 'Playful category icon animation',
     preload: true,
   },
+
+  celebrationDesktop: {
+    id: 'celebrationDesktop',
+    src: '/celebration.riv',
+    artboard: 'celebrationDesktop',
+    stateMachine: 'celebrationDesktopState',
+    inputs: [
+      { name: 'celebrateDesktop', type: 'trigger', description: 'Fires the celebration animation' },
+    ],
+    description: 'Full-screen celebration animation for desktop when deck reaches 52 cards',
+    preload: false,
+  },
+
+  celebrationMobile: {
+    id: 'celebrationMobile',
+    src: '/celebration.riv',
+    artboard: 'celebrationMobile',
+    stateMachine: 'celebrationMobileState',
+    inputs: [
+      { name: 'celebrateMobile', type: 'trigger', description: 'Fires the celebration animation' },
+    ],
+    description: 'Full-screen celebration animation for mobile when deck reaches 52 cards',
+    preload: false,
+  },
 };
 
 /**

@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { Link } from "wouter";
-import { CATEGORIES, Category } from "@shared/schema";
+import { CATEGORIES, Category, REQUIRED_TOTAL } from "@shared/schema";
 import { getDeckState, updateCategoryCount } from "@/lib/deck-state";
 import { StepIndicator } from "@/components/step-indicator";
 import { CategoryBin } from "@/components/category-bin";
 import { ProgressPanel } from "@/components/progress-panel";
+import { CelebrationOverlay } from "@/components/celebration-overlay";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Heart, ArrowLeft } from "lucide-react";
@@ -13,11 +14,21 @@ import { Heart, ArrowLeft } from "lucide-react";
 export default function Customize() {
   const [, navigate] = useLocation();
   const [config, setConfig] = useState(getDeckState);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const prevTotalRef = useRef<number>(0);
 
   useEffect(() => {
-    // Refresh state on mount
-    setConfig(getDeckState());
+    const state = getDeckState();
+    setConfig(state);
+    prevTotalRef.current = state.total;
   }, []);
+
+  useEffect(() => {
+    if (prevTotalRef.current !== REQUIRED_TOTAL && config.total === REQUIRED_TOTAL) {
+      setShowCelebration(true);
+    }
+    prevTotalRef.current = config.total;
+  }, [config.total]);
 
   const handleIncrement = (category: Category) => {
     const newState = updateCategoryCount(category, 1);
@@ -39,6 +50,12 @@ export default function Customize() {
 
   return (
     <div className="min-h-screen bg-background">
+      <CelebrationOverlay 
+        show={showCelebration} 
+        onComplete={() => setShowCelebration(false)}
+        duration={3000}
+      />
+
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4 md:px-6">
