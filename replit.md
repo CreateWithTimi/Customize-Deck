@@ -52,6 +52,7 @@ Preferred communication style: Simple, everyday language.
 - **Current Animations**:
   - `hero` - Landing page hero animation
   - `romanticIcon`, `deepIcon`, `naughtyIcon`, `friendshipIcon`, `playfulIcon` - Category icons with +/- triggers
+  - `celebrationDesktop`, `celebrationMobile` - Full-screen celebration overlay when deck reaches 52 cards
 
 ### Multi-Step Flow
 1. **Customize**: Adjust category counts with +/- controls, must total exactly 52
