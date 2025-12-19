@@ -129,17 +129,17 @@ export function CategoryBin({
             {riveConfig ? (
               <div
                 ref={containerRef}
-                className="h-10 w-10 md:h-12 md:w-12 shrink-0 rounded-lg"
+                className="h-12 w-12 md:h-14 md:w-14 shrink-0 rounded-lg"
               />
             ) : (
               <div
                 className={cn(
-                  "flex h-10 w-10 md:h-12 md:w-12 shrink-0 items-center justify-center rounded-lg",
+                  "flex h-12 w-12 md:h-14 md:w-14 shrink-0 items-center justify-center rounded-lg",
                   colors.accent,
                   "text-white"
                 )}
               >
-                <Icon className="h-5 w-5 md:h-6 md:w-6" />
+                <Icon className="h-6 w-6 md:h-7 md:w-7" />
               </div>
             )}
             <div className="min-w-0 flex-1">

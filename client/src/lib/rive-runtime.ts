@@ -209,11 +209,18 @@ export function useRiveAnimation(config: UseRiveConfig | null) {
   useEffect(() => {
     if (!config || !containerRef.current) return;
 
-    // Create canvas element
+    // Create canvas element with high-DPI support
     const canvas = document.createElement("canvas");
     canvas.style.width = "100%";
     canvas.style.height = "100%";
     canvas.style.display = "block";
+    
+    // Set initial canvas size with devicePixelRatio for crisp rendering
+    const dpr = window.devicePixelRatio || 1;
+    const rect = containerRef.current.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    
     containerRef.current.appendChild(canvas);
     canvasRef.current = canvas;
 
