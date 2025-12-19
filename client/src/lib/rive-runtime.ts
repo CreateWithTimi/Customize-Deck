@@ -232,8 +232,10 @@ export function useRiveAnimation(config: UseRiveConfig | null) {
         const inputs = rive.stateMachineInputs(config.stateMachineName);
         if (inputs) {
           inputs.forEach((input) => {
-            inputsRef.current[input.name] = input;
-            console.log(`[Rive] Found input: ${input.name}`);
+            // Trim whitespace from input names to handle Rive export quirks
+            const trimmedName = input.name.trim();
+            inputsRef.current[trimmedName] = input;
+            console.log(`[Rive] Found input: "${trimmedName}"`);
           });
         }
         setIsReady(true);
