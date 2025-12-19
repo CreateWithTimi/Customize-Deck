@@ -47,10 +47,11 @@ const colorMap: Record<string, { bg: string; border: string; text: string; accen
   },
 };
 
-const riveConfigMap: Record<Category, { artboardName: string; stateMachineName: string; plusTrigger: string; minusTrigger: string; reactTrigger: string } | null> = {
+const riveConfigMap: Record<Category, { src: string; artboardName: string; stateMachineName: string; plusTrigger: string; minusTrigger: string; reactTrigger: string } | null> = {
   romantic: {
-    artboardName: "ROMANTIC",
-    stateMachineName: "State Machine 1",
+    src: "/icons.riv",
+    artboardName: "romanticIcon",
+    stateMachineName: "romanticIconState",
     plusTrigger: "romanticPlus",
     minusTrigger: "romanticMinus",
     reactTrigger: "reaction",
@@ -89,7 +90,7 @@ export function CategoryBin({
   
   const { containerRef, fire, isReady } = useRiveAnimation(
     riveConfig ? {
-      src: "/ui.riv",
+      src: riveConfig.src,
       artboardName: riveConfig.artboardName,
       stateMachineName: riveConfig.stateMachineName,
       autoplay: true,
