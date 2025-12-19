@@ -247,23 +247,27 @@ export function useRiveAnimation(config: UseRiveConfig | null) {
         }
         setIsReady(true);
 
-        // Setup resize observer
-        const observer = new ResizeObserver(() => {
+        // High-DPI resize function
+        const resizeCanvas = () => {
           const dpr = window.devicePixelRatio || 1;
           const rect = canvas.getBoundingClientRect();
-          canvas.width = rect.width * dpr;
-          canvas.height = rect.height * dpr;
-          rive.resizeDrawingSurfaceToCanvas();
-        });
-        observer.observe(canvas);
+          const width = Math.round(rect.width * dpr);
+          const height = Math.round(rect.height * dpr);
+          
+          if (canvas.width !== width || canvas.height !== height) {
+            canvas.width = width;
+            canvas.height = height;
+            rive.resizeDrawingSurfaceToCanvas();
+          }
+        };
+
+        // Setup resize observer
+        const observer = new ResizeObserver(resizeCanvas);
+        observer.observe(containerRef.current!);
         resizeObserverRef.current = observer;
 
         // Initial resize
-        const dpr = window.devicePixelRatio || 1;
-        const rect = canvas.getBoundingClientRect();
-        canvas.width = rect.width * dpr;
-        canvas.height = rect.height * dpr;
-        rive.resizeDrawingSurfaceToCanvas();
+        resizeCanvas();
       },
     });
 
