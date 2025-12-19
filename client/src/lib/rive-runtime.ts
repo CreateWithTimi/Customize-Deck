@@ -233,6 +233,7 @@ export function useRiveAnimation(config: UseRiveConfig | null) {
         if (inputs) {
           inputs.forEach((input) => {
             inputsRef.current[input.name] = input;
+            console.log(`[Rive] Found input: ${input.name}`);
           });
         }
         setIsReady(true);
