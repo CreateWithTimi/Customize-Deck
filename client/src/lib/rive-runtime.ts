@@ -209,6 +209,9 @@ export function useRiveAnimation(config: UseRiveConfig | null) {
   useEffect(() => {
     if (!config || !containerRef.current) return;
 
+    // Save container reference for use in callbacks
+    const container = containerRef.current;
+
     // Create canvas element with high-DPI support
     const canvas = document.createElement("canvas");
     canvas.style.width = "100%";
@@ -218,11 +221,11 @@ export function useRiveAnimation(config: UseRiveConfig | null) {
     
     // Set initial canvas size with devicePixelRatio for crisp rendering
     const dpr = window.devicePixelRatio || 1;
-    const rect = containerRef.current.getBoundingClientRect();
+    const rect = container.getBoundingClientRect();
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
     
-    containerRef.current.appendChild(canvas);
+    container.appendChild(canvas);
     canvasRef.current = canvas;
 
     // Initialize Rive
@@ -265,7 +268,7 @@ export function useRiveAnimation(config: UseRiveConfig | null) {
 
         // Setup resize observer
         const observer = new ResizeObserver(resizeCanvas);
-        observer.observe(containerRef.current!);
+        observer.observe(container);
         resizeObserverRef.current = observer;
 
         // Initial resize
@@ -278,8 +281,8 @@ export function useRiveAnimation(config: UseRiveConfig | null) {
     return () => {
       resizeObserverRef.current?.disconnect();
       rive.cleanup();
-      if (canvasRef.current && containerRef.current) {
-        containerRef.current.removeChild(canvasRef.current);
+      if (canvasRef.current && container) {
+        container.removeChild(canvasRef.current);
       }
       canvasRef.current = null;
       riveRef.current = null;
