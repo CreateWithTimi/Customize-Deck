@@ -38,7 +38,20 @@ Preferred communication style: Simple, everyday language.
 
 ### Animation Layer
 - **Rive Integration**: `@rive-app/canvas` for interactive animations and gamification elements
-- **Runtime Wrapper**: `client/src/lib/rive-runtime.ts` provides a managed wrapper with lifecycle handling, input caching, and resize observation
+- **Centralized Manager**: `client/src/lib/rive-manager.ts` provides:
+  - Asset caching (files only downloaded once)
+  - Visibility-based pause/resume (saves CPU when offscreen via IntersectionObserver)
+  - Tab visibility handling (pauses all when tab hidden)
+  - Proper lifecycle management and cleanup
+- **Asset Manifest**: `client/src/lib/rive-manifest.ts` defines all animations with:
+  - Expected artboard and state machine names
+  - Input definitions (triggers, booleans, numbers)
+  - Validation on load to catch naming mismatches early
+- **Usage Pattern**: Use `useRiveManaged` hook with asset IDs from manifest
+- **Assets Location**: `.riv` files stored in `client/public/`
+- **Current Animations**:
+  - `hero` - Landing page hero animation
+  - `romanticIcon`, `deepIcon`, `naughtyIcon`, `friendshipIcon`, `playfulIcon` - Category icons with +/- triggers
 
 ### Multi-Step Flow
 1. **Customize**: Adjust category counts with +/- controls, must total exactly 52
