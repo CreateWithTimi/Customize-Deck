@@ -229,6 +229,7 @@ export function useRiveAnimation(config: UseRiveConfig | null) {
     canvasRef.current = canvas;
 
     // Initialize Rive
+    console.log(`[Rive] Loading artboard: "${config.artboardName}", stateMachine: "${config.stateMachineName}"`);
     const rive = new Rive({
       src: config.src,
       canvas: canvas,
