@@ -288,6 +288,9 @@ export function useRiveAnimation(config: UseRiveConfig | null) {
   const fire = useCallback((name: string) => {
     if (inputsRef.current[name]) {
       inputsRef.current[name].fire();
+      console.log(`[Rive Hook] Fired: ${name}`);
+    } else {
+      console.warn(`[Rive Hook] Trigger not found: ${name}. Available: ${Object.keys(inputsRef.current).join(', ')}`);
     }
   }, []);
 
