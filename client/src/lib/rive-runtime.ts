@@ -214,6 +214,7 @@ export function useRiveAnimation(config: UseRiveConfig | null) {
     canvas.style.width = "100%";
     canvas.style.height = "100%";
     canvas.style.display = "block";
+    canvas.style.imageRendering = "auto";
     
     // Set initial canvas size with devicePixelRatio for crisp rendering
     const dpr = window.devicePixelRatio || 1;
@@ -258,6 +259,7 @@ export function useRiveAnimation(config: UseRiveConfig | null) {
             canvas.width = width;
             canvas.height = height;
             rive.resizeDrawingSurfaceToCanvas();
+            console.log(`[Rive] Canvas resized: ${width}x${height} (DPR: ${dpr}, CSS: ${rect.width}x${rect.height})`);
           }
         };
 
