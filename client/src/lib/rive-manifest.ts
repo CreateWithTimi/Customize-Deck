@@ -118,7 +118,7 @@ export const RIVE_ASSETS: Record<string, RiveAssetDefinition> = {
     id: 'celebrationDesktop',
     src: '/celebration.riv',
     artboard: 'celebrationDesktop',
-    stateMachine: 'celebrationDesktopState',
+    stateMachine: 'celebrateDesktopState',
     inputs: [
       { name: 'celebrateDesktop', type: 'trigger', description: 'Fires the celebration animation' },
     ],
@@ -130,7 +130,7 @@ export const RIVE_ASSETS: Record<string, RiveAssetDefinition> = {
     id: 'celebrationMobile',
     src: '/celebration.riv',
     artboard: 'celebrationMobile',
-    stateMachine: 'celebrationMobileState',
+    stateMachine: 'celebrateMobileState',
     inputs: [
       { name: 'celebrateMobile', type: 'trigger', description: 'Fires the celebration animation' },
     ],
