@@ -1,18 +1,10 @@
-import { Minus, Plus, Heart, Brain, Flame, Users, Sparkles } from "lucide-react";
+import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Category, CATEGORY_META, REQUIRED_TOTAL } from "@shared/schema";
 import { cn } from "@/lib/utils";
 import { useRiveAnimation } from "@/lib/rive-runtime";
 import { useCallback } from "react";
-
-const iconMap = {
-  Heart,
-  Brain,
-  Flame,
-  Users,
-  Sparkles,
-};
 
 const colorMap: Record<string, { bg: string; border: string; text: string; accent: string }> = {
   rose: {
@@ -47,7 +39,7 @@ const colorMap: Record<string, { bg: string; border: string; text: string; accen
   },
 };
 
-const riveConfigMap: Record<Category, { src: string; artboardName: string; stateMachineName: string; plusTrigger: string; minusTrigger: string; reactTrigger: string } | null> = {
+const riveConfigMap: Record<Category, { src: string; artboardName: string; stateMachineName: string; plusTrigger: string; minusTrigger: string; reactTrigger: string }> = {
   romantic: {
     src: "/icons.riv",
     artboardName: "romanticIcon",
@@ -56,10 +48,38 @@ const riveConfigMap: Record<Category, { src: string; artboardName: string; state
     minusTrigger: "romanticMinus",
     reactTrigger: "reaction",
   },
-  deep: null,
-  naughty: null,
-  friendship: null,
-  playful: null,
+  deep: {
+    src: "/icons.riv",
+    artboardName: "deepIcon",
+    stateMachineName: "deepIconState",
+    plusTrigger: "deepPlus",
+    minusTrigger: "deepMinus",
+    reactTrigger: "reaction",
+  },
+  naughty: {
+    src: "/icons.riv",
+    artboardName: "naughtyIcon",
+    stateMachineName: "naughtyIconState",
+    plusTrigger: "naughtyPlus",
+    minusTrigger: "naughtyMinus",
+    reactTrigger: "reaction",
+  },
+  friendship: {
+    src: "/icons.riv",
+    artboardName: "friendshipIcon",
+    stateMachineName: "friendshipIconState",
+    plusTrigger: "friendshipPlus",
+    minusTrigger: "friendshipMinus",
+    reactTrigger: "reaction",
+  },
+  playful: {
+    src: "/icons.riv",
+    artboardName: "playfulIcon",
+    stateMachineName: "playfulIconState",
+    plusTrigger: "playfulPlus",
+    minusTrigger: "playfulMinus",
+    reactTrigger: "reaction",
+  },
 };
 
 interface CategoryBinProps {
@@ -81,24 +101,21 @@ export function CategoryBin({
 }: CategoryBinProps) {
   const meta = CATEGORY_META[category];
   const colors = colorMap[meta.color];
-  const Icon = iconMap[meta.icon as keyof typeof iconMap];
   const canIncrement = total < REQUIRED_TOTAL;
   const canDecrement = count > 0;
   const percentage = (count / REQUIRED_TOTAL) * 100;
 
   const riveConfig = riveConfigMap[category];
   
-  const { containerRef, fire, isReady } = useRiveAnimation(
-    riveConfig ? {
-      src: riveConfig.src,
-      artboardName: riveConfig.artboardName,
-      stateMachineName: riveConfig.stateMachineName,
-      autoplay: true,
-    } : null
-  );
+  const { containerRef, fire, isReady } = useRiveAnimation({
+    src: riveConfig.src,
+    artboardName: riveConfig.artboardName,
+    stateMachineName: riveConfig.stateMachineName,
+    autoplay: true,
+  });
 
   const handleIncrement = useCallback(() => {
-    if (riveConfig && isReady) {
+    if (isReady) {
       fire(riveConfig.plusTrigger);
       fire(riveConfig.reactTrigger);
     }
@@ -106,7 +123,7 @@ export function CategoryBin({
   }, [riveConfig, isReady, fire, onIncrement]);
 
   const handleDecrement = useCallback(() => {
-    if (riveConfig && isReady) {
+    if (isReady) {
       fire(riveConfig.minusTrigger);
       fire(riveConfig.reactTrigger);
     }
@@ -126,22 +143,10 @@ export function CategoryBin({
       <div className="p-4 md:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
-            {riveConfig ? (
-              <div
-                ref={containerRef}
-                className="h-12 w-12 md:h-14 md:w-14 shrink-0 rounded-lg"
-              />
-            ) : (
-              <div
-                className={cn(
-                  "flex h-12 w-12 md:h-14 md:w-14 shrink-0 items-center justify-center rounded-lg",
-                  colors.accent,
-                  "text-white"
-                )}
-              >
-                <Icon className="h-6 w-6 md:h-7 md:w-7" />
-              </div>
-            )}
+            <div
+              ref={containerRef}
+              className="h-12 w-12 md:h-14 md:w-14 shrink-0 rounded-lg"
+            />
             <div className="min-w-0 flex-1">
               <h3 className={cn("font-semibold text-base md:text-lg", colors.text)}>
                 {meta.label}
