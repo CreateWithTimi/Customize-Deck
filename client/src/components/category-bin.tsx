@@ -49,8 +49,8 @@ const colorMap: Record<string, { bg: string; border: string; text: string; accen
 
 const riveConfigMap: Record<Category, { artboardName: string; stateMachineName: string; plusTrigger: string; minusTrigger: string; reactTrigger: string } | null> = {
   romantic: {
-    artboardName: "RomanticIcon",
-    stateMachineName: "RomanticIconState",
+    artboardName: "ROMANTIC",
+    stateMachineName: "State Machine 1",
     plusTrigger: "romantic_plus",
     minusTrigger: "romantic_minus",
     reactTrigger: "react",
