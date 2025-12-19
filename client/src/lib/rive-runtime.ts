@@ -1,4 +1,5 @@
 import { Rive, StateMachineInput, Layout, Fit, Alignment } from "@rive-app/canvas";
+import { useRef, useEffect, useState, useCallback } from "react";
 
 // Configuration for a Rive animation instance
 export interface RiveConfig {
@@ -187,4 +188,113 @@ if (typeof window !== "undefined") {
   window.addEventListener("beforeunload", () => {
     RiveManager.disposeAll();
   });
+}
+
+// React hook for Rive animations with ref-based canvas management
+export interface UseRiveConfig {
+  src: string;
+  artboardName?: string;
+  stateMachineName: string;
+  autoplay?: boolean;
+}
+
+export function useRiveAnimation(config: UseRiveConfig | null) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const riveRef = useRef<Rive | null>(null);
+  const inputsRef = useRef<Record<string, StateMachineInput>>({});
+  const [isReady, setIsReady] = useState(false);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
+
+  useEffect(() => {
+    if (!config || !containerRef.current) return;
+
+    // Create canvas element
+    const canvas = document.createElement("canvas");
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    canvas.style.display = "block";
+    containerRef.current.appendChild(canvas);
+    canvasRef.current = canvas;
+
+    // Initialize Rive
+    const rive = new Rive({
+      src: config.src,
+      canvas: canvas,
+      artboard: config.artboardName,
+      stateMachines: config.stateMachineName,
+      autoplay: config.autoplay ?? true,
+      layout: new Layout({
+        fit: Fit.Contain,
+        alignment: Alignment.Center,
+      }),
+      onLoad: () => {
+        const inputs = rive.stateMachineInputs(config.stateMachineName);
+        if (inputs) {
+          inputs.forEach((input) => {
+            inputsRef.current[input.name] = input;
+          });
+        }
+        setIsReady(true);
+
+        // Setup resize observer
+        const observer = new ResizeObserver(() => {
+          const dpr = window.devicePixelRatio || 1;
+          const rect = canvas.getBoundingClientRect();
+          canvas.width = rect.width * dpr;
+          canvas.height = rect.height * dpr;
+          rive.resizeDrawingSurfaceToCanvas();
+        });
+        observer.observe(canvas);
+        resizeObserverRef.current = observer;
+
+        // Initial resize
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        rive.resizeDrawingSurfaceToCanvas();
+      },
+    });
+
+    riveRef.current = rive;
+
+    return () => {
+      resizeObserverRef.current?.disconnect();
+      rive.cleanup();
+      if (canvasRef.current && containerRef.current) {
+        containerRef.current.removeChild(canvasRef.current);
+      }
+      canvasRef.current = null;
+      riveRef.current = null;
+      inputsRef.current = {};
+      setIsReady(false);
+    };
+  }, [config?.src, config?.artboardName, config?.stateMachineName, config?.autoplay]);
+
+  const setBoolean = useCallback((name: string, value: boolean) => {
+    if (inputsRef.current[name]) {
+      inputsRef.current[name].value = value;
+    }
+  }, []);
+
+  const setNumber = useCallback((name: string, value: number) => {
+    if (inputsRef.current[name]) {
+      inputsRef.current[name].value = value;
+    }
+  }, []);
+
+  const fire = useCallback((name: string) => {
+    if (inputsRef.current[name]) {
+      inputsRef.current[name].fire();
+    }
+  }, []);
+
+  return {
+    containerRef,
+    isReady,
+    setBoolean,
+    setNumber,
+    fire,
+  };
 }

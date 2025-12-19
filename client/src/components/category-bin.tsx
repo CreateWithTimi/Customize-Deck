@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Category, CATEGORY_META, REQUIRED_TOTAL } from "@shared/schema";
 import { cn } from "@/lib/utils";
+import { useRiveAnimation } from "@/lib/rive-runtime";
+import { useCallback } from "react";
 
 const iconMap = {
   Heart,
@@ -45,6 +47,20 @@ const colorMap: Record<string, { bg: string; border: string; text: string; accen
   },
 };
 
+const riveConfigMap: Record<Category, { artboardName: string; stateMachineName: string; plusTrigger: string; minusTrigger: string; reactTrigger: string } | null> = {
+  romantic: {
+    artboardName: "RomanticIcon",
+    stateMachineName: "RomanticIconState",
+    plusTrigger: "romantic_plus",
+    minusTrigger: "romantic_minus",
+    reactTrigger: "react",
+  },
+  deep: null,
+  naughty: null,
+  friendship: null,
+  playful: null,
+};
+
 interface CategoryBinProps {
   category: Category;
   count: number;
@@ -69,6 +85,33 @@ export function CategoryBin({
   const canDecrement = count > 0;
   const percentage = (count / REQUIRED_TOTAL) * 100;
 
+  const riveConfig = riveConfigMap[category];
+  
+  const { containerRef, fire, isReady } = useRiveAnimation(
+    riveConfig ? {
+      src: "/ui.riv",
+      artboardName: riveConfig.artboardName,
+      stateMachineName: riveConfig.stateMachineName,
+      autoplay: true,
+    } : null
+  );
+
+  const handleIncrement = useCallback(() => {
+    if (riveConfig && isReady) {
+      fire(riveConfig.plusTrigger);
+      fire(riveConfig.reactTrigger);
+    }
+    onIncrement();
+  }, [riveConfig, isReady, fire, onIncrement]);
+
+  const handleDecrement = useCallback(() => {
+    if (riveConfig && isReady) {
+      fire(riveConfig.minusTrigger);
+      fire(riveConfig.reactTrigger);
+    }
+    onDecrement();
+  }, [riveConfig, isReady, fire, onDecrement]);
+
   return (
     <Card
       className={cn(
@@ -82,15 +125,22 @@ export function CategoryBin({
       <div className="p-4 md:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
-            <div
-              className={cn(
-                "flex h-10 w-10 md:h-12 md:w-12 shrink-0 items-center justify-center rounded-lg",
-                colors.accent,
-                "text-white"
-              )}
-            >
-              <Icon className="h-5 w-5 md:h-6 md:w-6" />
-            </div>
+            {riveConfig ? (
+              <div
+                ref={containerRef}
+                className="h-10 w-10 md:h-12 md:w-12 shrink-0 rounded-lg"
+              />
+            ) : (
+              <div
+                className={cn(
+                  "flex h-10 w-10 md:h-12 md:w-12 shrink-0 items-center justify-center rounded-lg",
+                  colors.accent,
+                  "text-white"
+                )}
+              >
+                <Icon className="h-5 w-5 md:h-6 md:w-6" />
+              </div>
+            )}
             <div className="min-w-0 flex-1">
               <h3 className={cn("font-semibold text-base md:text-lg", colors.text)}>
                 {meta.label}
@@ -105,7 +155,7 @@ export function CategoryBin({
             <Button
               variant="outline"
               size="icon"
-              onClick={onDecrement}
+              onClick={handleDecrement}
               disabled={disabled || !canDecrement}
               className="h-10 w-10 md:h-10 md:w-10 rounded-full"
               data-testid={`button-decrement-${category}`}
@@ -129,7 +179,7 @@ export function CategoryBin({
             <Button
               variant="outline"
               size="icon"
-              onClick={onIncrement}
+              onClick={handleIncrement}
               disabled={disabled || !canIncrement}
               className="h-10 w-10 md:h-10 md:w-10 rounded-full"
               data-testid={`button-increment-${category}`}
