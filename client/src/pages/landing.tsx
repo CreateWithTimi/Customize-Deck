@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { RiveInstance, RiveManager } from "@/lib/rive-runtime";
+import { useRiveManaged } from "@/lib/rive-manager";
 import {
   Heart,
   MessageCircle,
@@ -17,38 +17,23 @@ import {
 } from "lucide-react";
 
 function HeroCardDeck() {
-  const [isRiveLoaded, setIsRiveLoaded] = useState(false);
-  const riveRef = useRef<RiveInstance | null>(null);
+  const { containerRef, setBoolean, isReady } = useRiveManaged({
+    assetId: 'hero',
+    autoplay: true,
+    pauseWhenHidden: true,
+  });
 
-  useEffect(() => {
-    const hero = new RiveInstance({
-      canvasId: "hero-rive-canvas",
-      rivePath: "/ui.riv",
-      artboardName: "Hero",
-      stateMachineName: "HeroState",
-    });
+  const handleMouseEnter = useCallback(() => {
+    if (isReady) {
+      setBoolean("isHover", true);
+    }
+  }, [isReady, setBoolean]);
 
-    hero.init().then((success) => {
-      if (success) {
-        setIsRiveLoaded(true);
-        riveRef.current = hero;
-        RiveManager.register("hero", hero);
-      }
-    });
-
-    return () => {
-      hero.dispose();
-      riveRef.current = null;
-    };
-  }, []);
-
-  const handleMouseEnter = () => {
-    riveRef.current?.setBoolean("isHover", true);
-  };
-
-  const handleMouseLeave = () => {
-    riveRef.current?.setBoolean("isHover", false);
-  };
+  const handleMouseLeave = useCallback(() => {
+    if (isReady) {
+      setBoolean("isHover", false);
+    }
+  }, [isReady, setBoolean]);
 
   return (
     <div 
@@ -57,12 +42,10 @@ function HeroCardDeck() {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Glow effect behind animation */}
       <div className="absolute inset-0 bg-gradient-to-t from-primary/20 via-primary/5 to-transparent rounded-3xl blur-3xl" />
       
-      {/* Rive canvas */}
-      <canvas
-        id="hero-rive-canvas"
+      <div
+        ref={containerRef}
         className="relative z-10 w-full h-full cursor-pointer"
         aria-label="Interactive card deck animation"
       />
