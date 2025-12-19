@@ -41,7 +41,7 @@ const colorMap: Record<string, { bg: string; border: string; text: string; accen
 
 const riveConfigMap: Record<Category, { src: string; artboardName: string; stateMachineName: string; plusTrigger: string; minusTrigger: string; reactTrigger: string }> = {
   romantic: {
-    src: "/icons.riv",
+    src: "/romantic.riv",
     artboardName: "romanticIcon",
     stateMachineName: "romanticIconState",
     plusTrigger: "romanticPlus",
@@ -49,7 +49,7 @@ const riveConfigMap: Record<Category, { src: string; artboardName: string; state
     reactTrigger: "reaction",
   },
   deep: {
-    src: "/icons.riv",
+    src: "/deep.riv",
     artboardName: "deepIcon",
     stateMachineName: "deepIconState",
     plusTrigger: "deepPlus",
@@ -57,7 +57,7 @@ const riveConfigMap: Record<Category, { src: string; artboardName: string; state
     reactTrigger: "reaction",
   },
   naughty: {
-    src: "/icons.riv",
+    src: "/naughty.riv",
     artboardName: "naughtyIcon",
     stateMachineName: "naughtyIconState",
     plusTrigger: "naughtyPlus",
@@ -65,7 +65,7 @@ const riveConfigMap: Record<Category, { src: string; artboardName: string; state
     reactTrigger: "reaction",
   },
   friendship: {
-    src: "/icons.riv",
+    src: "/friendship.riv",
     artboardName: "friendshipIcon",
     stateMachineName: "friendshipIconState",
     plusTrigger: "friendshipPlus",
@@ -73,7 +73,7 @@ const riveConfigMap: Record<Category, { src: string; artboardName: string; state
     reactTrigger: "reaction",
   },
   playful: {
-    src: "/icons.riv",
+    src: "/playful.riv",
     artboardName: "playfulIcon",
     stateMachineName: "playfulIconState",
     plusTrigger: "playfulPlus",
