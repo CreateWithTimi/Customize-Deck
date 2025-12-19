@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Category, CATEGORY_META, REQUIRED_TOTAL } from "@shared/schema";
 import { cn } from "@/lib/utils";
-import { useRiveAnimation } from "@/lib/rive-runtime";
-import { useCallback } from "react";
+import { useRiveManaged } from "@/lib/rive-manager";
+import { getCategoryIconAsset } from "@/lib/rive-manifest";
+import { useCallback, useMemo } from "react";
 
 const colorMap: Record<string, { bg: string; border: string; text: string; accent: string }> = {
   rose: {
@@ -39,49 +40,6 @@ const colorMap: Record<string, { bg: string; border: string; text: string; accen
   },
 };
 
-const riveConfigMap: Record<Category, { src: string; artboardName: string; stateMachineName: string; plusTrigger: string; minusTrigger: string; reactTrigger: string }> = {
-  romantic: {
-    src: "/romantic.riv",
-    artboardName: "romanticIcon",
-    stateMachineName: "romanticIconState",
-    plusTrigger: "romanticPlus",
-    minusTrigger: "romanticMinus",
-    reactTrigger: "reaction",
-  },
-  deep: {
-    src: "/deep.riv",
-    artboardName: "deepIcon",
-    stateMachineName: "deepIconState",
-    plusTrigger: "deepPlus",
-    minusTrigger: "deepMinus",
-    reactTrigger: "reaction",
-  },
-  naughty: {
-    src: "/naughty.riv",
-    artboardName: "naughtyIcon",
-    stateMachineName: "naughtyIconState",
-    plusTrigger: "naughtyPlus",
-    minusTrigger: "naughtyMinus",
-    reactTrigger: "reaction",
-  },
-  friendship: {
-    src: "/friendship.riv",
-    artboardName: "friendshipIcon",
-    stateMachineName: "friendshipIconState",
-    plusTrigger: "friendshipPlus",
-    minusTrigger: "friendshipMinus",
-    reactTrigger: "reaction",
-  },
-  playful: {
-    src: "/playful.riv",
-    artboardName: "playfulIcon",
-    stateMachineName: "playfulIconState",
-    plusTrigger: "playfulPlus",
-    minusTrigger: "playfulMinus",
-    reactTrigger: "reaction",
-  },
-};
-
 interface CategoryBinProps {
   category: Category;
   count: number;
@@ -105,30 +63,40 @@ export function CategoryBin({
   const canDecrement = count > 0;
   const percentage = (count / REQUIRED_TOTAL) * 100;
 
-  const riveConfig = riveConfigMap[category];
+  const assetId = `${category}Icon`;
+  const assetDef = getCategoryIconAsset(category);
   
-  const { containerRef, fire, isReady } = useRiveAnimation({
-    src: riveConfig.src,
-    artboardName: riveConfig.artboardName,
-    stateMachineName: riveConfig.stateMachineName,
+  const { containerRef, fire, isReady } = useRiveManaged({
+    assetId,
     autoplay: true,
+    pauseWhenHidden: true,
   });
+
+  const triggers = useMemo(() => {
+    if (!assetDef) return { plus: '', minus: '', reaction: '' };
+    const inputs = assetDef.inputs;
+    return {
+      plus: inputs.find(i => i.name.includes('Plus'))?.name || `${category}Plus`,
+      minus: inputs.find(i => i.name.includes('Minus'))?.name || `${category}Minus`,
+      reaction: inputs.find(i => i.name === 'reaction')?.name || 'reaction',
+    };
+  }, [assetDef, category]);
 
   const handleIncrement = useCallback(() => {
     if (isReady) {
-      fire(riveConfig.plusTrigger);
-      fire(riveConfig.reactTrigger);
+      fire(triggers.plus);
+      fire(triggers.reaction);
     }
     onIncrement();
-  }, [riveConfig, isReady, fire, onIncrement]);
+  }, [triggers, isReady, fire, onIncrement]);
 
   const handleDecrement = useCallback(() => {
     if (isReady) {
-      fire(riveConfig.minusTrigger);
-      fire(riveConfig.reactTrigger);
+      fire(triggers.minus);
+      fire(triggers.reaction);
     }
     onDecrement();
-  }, [riveConfig, isReady, fire, onDecrement]);
+  }, [triggers, isReady, fire, onDecrement]);
 
   return (
     <Card
@@ -195,7 +163,6 @@ export function CategoryBin({
           </div>
         </div>
 
-        {/* Progress bar */}
         <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-muted/50">
           <div
             className={cn("h-full rounded-full transition-all duration-300", colors.accent)}
