@@ -129,7 +129,7 @@ export const RIVE_ASSETS: Record<string, RiveAssetDefinition> = {
   celebrationMobile: {
     id: 'celebrationMobile',
     src: '/celebration.riv',
-    artboard: 'celebrateMobileState',
+    artboard: 'celebrationMobile',
     stateMachine: 'celebrateMobileState',
     inputs: [
       { name: 'celebrateMobile', type: 'trigger', description: 'Fires the celebration animation' },
