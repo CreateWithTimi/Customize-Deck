@@ -15,6 +15,7 @@ function getDefaultConfig(): DeckConfig {
     total: 0,
     cardBackDesign: null,
     cardBackIndex: null,
+    cardBackHue: 0,
   };
 }
 
@@ -44,6 +45,7 @@ function sanitizeDeckConfig(raw: unknown): DeckConfig {
   if (typeof rawObj.cardBackDesign === "string" && rawObj.cardBackDesign.length > 0) {
     config.cardBackDesign = rawObj.cardBackDesign;
     config.cardBackIndex = parseInt(String(rawObj.cardBackIndex)) || 0;
+    config.cardBackHue = Math.max(0, Math.min(360, parseInt(String(rawObj.cardBackHue)) || 0));
   }
 
   return config;
@@ -114,10 +116,11 @@ export function setCategoryCount(category: Category, value: number): DeckConfig 
 }
 
 // Set card back selection
-export function setCardBack(designId: string, index: number): DeckConfig {
+export function setCardBack(designId: string, index: number, hue: number = 0): DeckConfig {
   return setDeckState({
     cardBackDesign: designId,
     cardBackIndex: index,
+    cardBackHue: Math.max(0, Math.min(360, hue)),
   });
 }
 

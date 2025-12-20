@@ -80,6 +80,7 @@ export const deckConfigSchema = z.object({
   total: z.number(),
   cardBackDesign: z.string().nullable(),
   cardBackIndex: z.number().nullable(),
+  cardBackHue: z.number().min(0).max(360).default(0),
 });
 
 export type DeckConfig = z.infer<typeof deckConfigSchema>;

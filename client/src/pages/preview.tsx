@@ -4,6 +4,7 @@ import { getDeckState, validations } from "@/lib/deck-state";
 import { CATEGORIES, CATEGORY_META, CARD_BACK_DESIGNS, REQUIRED_TOTAL } from "@shared/schema";
 import { StepIndicator } from "@/components/step-indicator";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { CardBackPreview } from "@/components/card-back-preview";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -17,22 +18,6 @@ const colorMap: Record<string, string> = {
   emerald: "bg-emerald-500",
   violet: "bg-violet-500",
 };
-
-const designColors = [
-  "from-gray-900 via-gray-800 to-gray-900",
-  "from-rose-300 via-pink-200 to-rose-300",
-  "from-indigo-900 via-blue-800 to-indigo-900",
-  "from-gray-100 via-white to-gray-100",
-  "from-red-700 via-red-600 to-red-700",
-];
-
-const designPatterns = [
-  "bg-[radial-gradient(circle_at_30%_20%,rgba(255,215,0,0.3)_0%,transparent_50%)]",
-  "bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.4)_0%,transparent_70%)]",
-  "bg-[radial-gradient(circle_at_20%_80%,rgba(255,255,255,0.2)_0%,transparent_40%),radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.2)_0%,transparent_40%)]",
-  "bg-[linear-gradient(45deg,rgba(212,175,55,0.2)_0%,transparent_50%,rgba(212,175,55,0.2)_100%)]",
-  "bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.15)_0%,transparent_60%)]",
-];
 
 export default function Preview() {
   const [, navigate] = useLocation();
@@ -161,29 +146,12 @@ export default function Preview() {
             </div>
 
             <div className="flex flex-col items-center space-y-4">
-              {/* Card preview */}
-              <div
-                className="relative aspect-[2.5/3.5] w-40 md:w-48 rounded-xl overflow-hidden shadow-lg border-2 border-primary/20"
+              <CardBackPreview 
+                designIndex={designIndex} 
+                hue={config.cardBackHue || 0} 
+                size="lg"
                 data-testid="preview-card-back"
-              >
-                <div
-                  className={cn(
-                    "absolute inset-0 bg-gradient-to-br",
-                    designColors[designIndex]
-                  )}
-                />
-                <div
-                  className={cn(
-                    "absolute inset-0",
-                    designPatterns[designIndex]
-                  )}
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="h-12 w-12 rounded-full border-2 border-white/20 flex items-center justify-center">
-                    <div className="h-7 w-7 rounded-full border border-white/30" />
-                  </div>
-                </div>
-              </div>
+              />
 
               {selectedDesign && (
                 <div className="text-center">

@@ -5,7 +5,8 @@ import { StepIndicator } from "@/components/step-indicator";
 import { CardBackCarousel } from "@/components/card-back-carousel";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { Heart, ArrowLeft, ChevronRight } from "lucide-react";
+import { Heart, ArrowLeft, ChevronRight, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function CardBack() {
   const [, navigate] = useLocation();
@@ -13,20 +14,22 @@ export default function CardBack() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(
     config.cardBackIndex
   );
+  const [selectedHue, setSelectedHue] = useState(config.cardBackHue || 0);
 
   useEffect(() => {
     const currentConfig = getDeckState();
     setConfig(currentConfig);
+    setSelectedHue(currentConfig.cardBackHue || 0);
 
-    // Page guard: redirect if deck not complete
     if (!validations.canProceedToCardBack(currentConfig)) {
       navigate("/customize");
     }
   }, [navigate]);
 
-  const handleSelect = (index: number, designId: string) => {
+  const handleSelect = (index: number, designId: string, hue: number) => {
     setSelectedIndex(index);
-    const newState = setCardBack(designId, index);
+    setSelectedHue(hue);
+    const newState = setCardBack(designId, index, hue);
     setConfig(newState);
   };
 
@@ -40,7 +43,6 @@ export default function CardBack() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4 md:px-6">
           <Link href="/" className="flex items-center gap-2">
@@ -51,16 +53,13 @@ export default function CardBack() {
         </div>
       </header>
 
-      {/* Step Indicator */}
       <div className="border-b bg-muted/30">
         <div className="container mx-auto px-4">
           <StepIndicator currentStep={1} />
         </div>
       </div>
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 py-8 md:py-12">
-        {/* Back link */}
         <Link href="/customize">
           <Button variant="ghost" className="gap-2 mb-6" data-testid="button-back-customize">
             <ArrowLeft className="h-4 w-4" />
@@ -68,37 +67,55 @@ export default function CardBack() {
           </Button>
         </Link>
 
-        <div className="mb-12 text-center">
-          <h1 className="text-2xl md:text-3xl font-bold mb-2">
+        <motion.div 
+          className="mb-10 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            <Sparkles className="h-4 w-4" />
+            Premium Card Designs
+          </div>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3 bg-gradient-to-r from-foreground via-foreground/80 to-foreground bg-clip-text">
             Choose Your Card Back
           </h1>
-          <p className="text-muted-foreground">
-            Select a premium design that matches your style. One design applies to
-            all 52 cards.
+          <p className="text-muted-foreground text-lg max-w-xl mx-auto">
+            Select and customize a premium design that matches your style. 
+            One design applies to all 52 cards.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Carousel */}
-        <div className="max-w-4xl mx-auto">
+        <motion.div 
+          className="max-w-5xl mx-auto"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           <CardBackCarousel
             selectedIndex={selectedIndex}
+            selectedHue={selectedHue}
             onSelect={handleSelect}
           />
-        </div>
+        </motion.div>
 
-        {/* Navigation */}
-        <div className="flex justify-center mt-12">
+        <motion.div 
+          className="flex justify-center mt-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
           <Button
             size="lg"
-            className="gap-2"
+            className="gap-2 px-8 py-6 text-lg"
             disabled={!canProceed}
             onClick={handleNext}
             data-testid="button-continue-preview"
           >
             Continue to Preview
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-5 w-5" />
           </Button>
-        </div>
+        </motion.div>
       </main>
     </div>
   );

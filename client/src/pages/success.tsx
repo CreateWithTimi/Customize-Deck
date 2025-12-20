@@ -16,13 +16,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const designColors = [
-  "from-gray-900 via-gray-800 to-gray-900",
-  "from-rose-300 via-pink-200 to-rose-300",
-  "from-indigo-900 via-blue-800 to-indigo-900",
-  "from-gray-100 via-white to-gray-100",
-  "from-red-700 via-red-600 to-red-700",
-];
+import { CardBackPreview } from "@/components/card-back-preview";
 
 export default function Success() {
   const [config] = useState(getDeckState);
@@ -86,18 +80,11 @@ export default function Success() {
             </h2>
 
             <div className="flex items-center justify-center gap-6 mb-6">
-              {/* Card preview */}
-              <div
-                className={cn(
-                  "relative aspect-[2.5/3.5] w-20 md:w-24 rounded-xl overflow-hidden shadow-lg border",
-                  "bg-gradient-to-br",
-                  designColors[designIndex]
-                )}
-              >
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="h-8 w-8 rounded-full border-2 border-white/20" />
-                </div>
-              </div>
+              <CardBackPreview 
+                designIndex={designIndex} 
+                hue={config.cardBackHue || 0} 
+                size="sm"
+              />
 
               <div>
                 <p className="font-semibold">Custom Conversation Deck</p>

@@ -1,175 +1,393 @@
-import { useState } from "react";
-import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { motion, AnimatePresence, PanInfo } from "framer-motion";
+import { ChevronLeft, ChevronRight, Check, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Slider } from "@/components/ui/slider";
 import { CARD_BACK_DESIGNS } from "@shared/schema";
 import { cn } from "@/lib/utils";
 
 interface CardBackCarouselProps {
   selectedIndex: number | null;
-  onSelect: (index: number, designId: string) => void;
+  selectedHue: number;
+  onSelect: (index: number, designId: string, hue: number) => void;
 }
 
-const designColors = [
-  "from-gray-900 via-gray-800 to-gray-900", // midnight-noir
-  "from-rose-300 via-pink-200 to-rose-300", // rose-garden
-  "from-indigo-900 via-blue-800 to-indigo-900", // celestial
-  "from-gray-100 via-white to-gray-100", // classic-marble
-  "from-red-700 via-red-600 to-red-700", // passion-red
+const baseDesigns = [
+  { 
+    gradient: "from-gray-900 via-gray-800 to-gray-900",
+    pattern: "radial-gradient(circle at 30% 20%, rgba(255,215,0,0.3) 0%, transparent 50%)",
+    accent: "gold",
+    baseHue: 0
+  },
+  { 
+    gradient: "from-rose-400 via-pink-300 to-rose-400",
+    pattern: "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 0%, transparent 70%)",
+    accent: "white",
+    baseHue: 340
+  },
+  { 
+    gradient: "from-indigo-800 via-blue-700 to-indigo-800",
+    pattern: "radial-gradient(circle at 20% 80%, rgba(255,255,255,0.2) 0%, transparent 40%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.2) 0%, transparent 40%)",
+    accent: "white",
+    baseHue: 230
+  },
+  { 
+    gradient: "from-stone-200 via-white to-stone-200",
+    pattern: "linear-gradient(45deg, rgba(212,175,55,0.3) 0%, transparent 50%, rgba(212,175,55,0.3) 100%)",
+    accent: "gold",
+    baseHue: 40
+  },
+  { 
+    gradient: "from-red-600 via-rose-500 to-red-600",
+    pattern: "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.15) 0%, transparent 60%)",
+    accent: "white",
+    baseHue: 0
+  },
 ];
 
-const designPatterns = [
-  "bg-[radial-gradient(circle_at_30%_20%,rgba(255,215,0,0.3)_0%,transparent_50%)]", // gold foil
-  "bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.4)_0%,transparent_70%)]", // floral
-  "bg-[radial-gradient(circle_at_20%_80%,rgba(255,255,255,0.2)_0%,transparent_40%),radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.2)_0%,transparent_40%)]", // stars
-  "bg-[linear-gradient(45deg,rgba(212,175,55,0.2)_0%,transparent_50%,rgba(212,175,55,0.2)_100%)]", // marble veins
-  "bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.15)_0%,transparent_60%)]", // hearts
-];
-
-export function CardBackCarousel({ selectedIndex, onSelect }: CardBackCarouselProps) {
+export function CardBackCarousel({ 
+  selectedIndex, 
+  selectedHue,
+  onSelect 
+}: CardBackCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(selectedIndex ?? 0);
+  const [localHue, setLocalHue] = useState(selectedHue);
+  const [isDragging, setIsDragging] = useState(false);
+  
   const currentDesign = CARD_BACK_DESIGNS[currentIndex];
+  const isSelected = selectedIndex === currentIndex && selectedHue === localHue;
+
+  useEffect(() => {
+    if (selectedIndex !== null && selectedIndex !== currentIndex) {
+      setCurrentIndex(selectedIndex);
+    }
+  }, [selectedIndex]);
+
+  useEffect(() => {
+    setLocalHue(selectedHue);
+  }, [selectedHue]);
+
+  const navigateTo = (newIndex: number) => {
+    setCurrentIndex(newIndex);
+    onSelect(newIndex, CARD_BACK_DESIGNS[newIndex].id, localHue);
+  };
 
   const goToPrev = () => {
-    setCurrentIndex((prev) =>
-      prev === 0 ? CARD_BACK_DESIGNS.length - 1 : prev - 1
-    );
+    const newIndex = currentIndex === 0 ? CARD_BACK_DESIGNS.length - 1 : currentIndex - 1;
+    navigateTo(newIndex);
   };
 
   const goToNext = () => {
-    setCurrentIndex((prev) =>
-      prev === CARD_BACK_DESIGNS.length - 1 ? 0 : prev + 1
-    );
+    const newIndex = currentIndex === CARD_BACK_DESIGNS.length - 1 ? 0 : currentIndex + 1;
+    navigateTo(newIndex);
   };
 
-  const isSelected = selectedIndex === currentIndex;
+  const handleDragEnd = (_: any, info: PanInfo) => {
+    setIsDragging(false);
+    if (info.offset.x > 100) {
+      goToPrev();
+    } else if (info.offset.x < -100) {
+      goToNext();
+    }
+  };
+
+  const handleHueChange = (value: number[]) => {
+    const newHue = value[0];
+    setLocalHue(newHue);
+    onSelect(currentIndex, currentDesign.id, newHue);
+  };
+
+  const getCardStyle = (index: number) => {
+    const diff = index - currentIndex;
+    const absIndex = Math.abs(diff);
+    
+    if (absIndex > 2) return { display: "none" };
+    
+    const xOffset = diff * 120;
+    const scale = 1 - absIndex * 0.15;
+    const zIndex = 10 - absIndex;
+    const rotateY = diff * -15;
+    const blur = absIndex * 2;
+    const opacity = 1 - absIndex * 0.3;
+
+    return {
+      x: xOffset,
+      scale,
+      zIndex,
+      rotateY,
+      filter: `blur(${blur}px)`,
+      opacity,
+    };
+  };
+
+  const cardIndices = useMemo(() => {
+    const indices = [];
+    for (let i = -2; i <= 2; i++) {
+      let index = currentIndex + i;
+      if (index < 0) index = CARD_BACK_DESIGNS.length + index;
+      if (index >= CARD_BACK_DESIGNS.length) index = index - CARD_BACK_DESIGNS.length;
+      indices.push({ offset: i, index });
+    }
+    return indices;
+  }, [currentIndex]);
+
+  const getHueRotation = (baseHue: number) => {
+    return localHue - baseHue;
+  };
 
   return (
-    <div className="space-y-8">
-      {/* Main carousel */}
-      <div className="relative flex items-center justify-center gap-4 md:gap-8">
+    <div className="space-y-10">
+      <div 
+        className="relative h-[420px] md:h-[480px] flex items-center justify-center overflow-visible"
+        style={{ perspective: "1200px" }}
+      >
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
           onClick={goToPrev}
-          className="h-10 w-10 md:h-12 md:w-12 rounded-full shrink-0"
+          className="absolute left-0 md:left-8 z-20 h-12 w-12 rounded-full bg-background/80 backdrop-blur-sm border shadow-lg"
           data-testid="button-carousel-prev"
         >
-          <ChevronLeft className="h-5 w-5 md:h-6 md:w-6" />
+          <ChevronLeft className="h-6 w-6" />
         </Button>
 
-        <div className="relative">
-          {/* Card preview */}
-          <div
-            className={cn(
-              "relative aspect-[2.5/3.5] w-48 md:w-64 lg:w-72 rounded-xl overflow-hidden shadow-2xl transition-all duration-500",
-              "border-4",
-              isSelected ? "border-primary ring-4 ring-primary/20" : "border-transparent"
-            )}
-            data-testid={`card-back-preview-${currentIndex}`}
-          >
-            <div
-              className={cn(
-                "absolute inset-0 bg-gradient-to-br",
-                designColors[currentIndex]
-              )}
-            />
-            <div
-              className={cn(
-                "absolute inset-0",
-                designPatterns[currentIndex]
-              )}
-            />
-            
-            {/* Center decoration */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="h-16 w-16 md:h-20 md:w-20 rounded-full border-2 border-white/20 flex items-center justify-center">
-                <div className="h-10 w-10 md:h-12 md:w-12 rounded-full border border-white/30" />
-              </div>
-            </div>
+        <div 
+          className="relative w-full h-full flex items-center justify-center"
+          style={{ transformStyle: "preserve-3d" }}
+        >
+          <AnimatePresence mode="popLayout">
+            {cardIndices.map(({ offset, index }) => {
+              const design = baseDesigns[index];
+              const cardStyle = getCardStyle(index);
+              const isCurrent = offset === 0;
+              const hueRotation = getHueRotation(design.baseHue);
 
-            {/* Selected indicator */}
-            {isSelected && (
-              <div className="absolute top-3 right-3 h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-                <Check className="h-5 w-5" />
-              </div>
-            )}
-          </div>
+              return (
+                <motion.div
+                  key={`card-${index}`}
+                  className="absolute cursor-grab active:cursor-grabbing"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={cardStyle}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ 
+                    type: "spring", 
+                    stiffness: 300, 
+                    damping: 30 
+                  }}
+                  drag={isCurrent ? "x" : false}
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.2}
+                  onDragStart={() => setIsDragging(true)}
+                  onDragEnd={handleDragEnd}
+                  onClick={() => !isDragging && offset !== 0 && navigateTo(index)}
+                  style={{ transformStyle: "preserve-3d" }}
+                  data-testid={`card-3d-${index}`}
+                >
+                  <div
+                    className={cn(
+                      "relative w-56 md:w-72 lg:w-80 aspect-[2.5/3.5] rounded-2xl overflow-hidden transition-shadow duration-300",
+                      isCurrent && "shadow-2xl shadow-black/30",
+                      isCurrent && isSelected && "ring-4 ring-primary ring-offset-2 ring-offset-background"
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "absolute inset-0 bg-gradient-to-br",
+                        design.gradient
+                      )}
+                      style={{ filter: `hue-rotate(${hueRotation}deg)` }}
+                    />
+                    
+                    <div
+                      className="absolute inset-0"
+                      style={{ background: design.pattern }}
+                    />
+
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/10" />
+
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="relative">
+                        <div 
+                          className={cn(
+                            "h-20 w-20 md:h-24 md:w-24 rounded-full border-2 flex items-center justify-center",
+                            design.accent === "gold" ? "border-yellow-400/40" : "border-white/30"
+                          )}
+                        >
+                          <div 
+                            className={cn(
+                              "h-12 w-12 md:h-14 md:w-14 rounded-full border",
+                              design.accent === "gold" ? "border-yellow-400/60" : "border-white/40"
+                            )} 
+                          />
+                        </div>
+                        
+                        {isCurrent && (
+                          <motion.div
+                            className="absolute inset-0 rounded-full"
+                            initial={{ opacity: 0 }}
+                            animate={{ 
+                              opacity: [0.3, 0.6, 0.3],
+                              scale: [1, 1.1, 1]
+                            }}
+                            transition={{ 
+                              duration: 2, 
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                            style={{
+                              background: design.accent === "gold" 
+                                ? "radial-gradient(circle, rgba(255,215,0,0.3) 0%, transparent 70%)"
+                                : "radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%)"
+                            }}
+                          />
+                        )}
+                      </div>
+                    </div>
+
+                    {isCurrent && isSelected && (
+                      <motion.div 
+                        className="absolute top-4 right-4 h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                      >
+                        <Check className="h-6 w-6" />
+                      </motion.div>
+                    )}
+
+                    {isCurrent && (
+                      <motion.div
+                        className="absolute inset-0 pointer-events-none"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        style={{
+                          background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.15) 45%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.15) 55%, transparent 60%)",
+                          backgroundSize: "200% 100%",
+                        }}
+                        transition={{ duration: 0.3 }}
+                      />
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
         </div>
 
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
           onClick={goToNext}
-          className="h-10 w-10 md:h-12 md:w-12 rounded-full shrink-0"
+          className="absolute right-0 md:right-8 z-20 h-12 w-12 rounded-full bg-background/80 backdrop-blur-sm border shadow-lg"
           data-testid="button-carousel-next"
         >
-          <ChevronRight className="h-5 w-5 md:h-6 md:w-6" />
+          <ChevronRight className="h-6 w-6" />
         </Button>
       </div>
 
-      {/* Design info */}
-      <div className="text-center space-y-2">
-        <h3 className="text-xl md:text-2xl font-semibold">{currentDesign.name}</h3>
-        <p className="text-muted-foreground">{currentDesign.description}</p>
+      <motion.div 
+        className="text-center space-y-2"
+        key={currentIndex}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <h3 className="text-2xl md:text-3xl font-bold">{currentDesign.name}</h3>
+        <p className="text-muted-foreground text-lg">{currentDesign.description}</p>
+      </motion.div>
+
+      <div className="max-w-md mx-auto space-y-4 p-6 rounded-xl bg-muted/30 border">
+        <div className="flex items-center gap-3">
+          <Palette className="h-5 w-5 text-muted-foreground" />
+          <span className="font-medium">Customize Color</span>
+        </div>
+        <div className="relative">
+          <div 
+            className="absolute inset-0 rounded-full h-3 top-1/2 -translate-y-1/2"
+            style={{
+              background: "linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)"
+            }}
+          />
+          <Slider
+            value={[localHue]}
+            onValueChange={handleHueChange}
+            min={0}
+            max={360}
+            step={1}
+            className="relative z-10 [&_[role=slider]]:h-6 [&_[role=slider]]:w-6 [&_[role=slider]]:border-4 [&_[role=slider]]:border-white [&_[role=slider]]:shadow-lg"
+            data-testid="slider-hue"
+          />
+        </div>
+        <p className="text-sm text-muted-foreground text-center">
+          Drag to shift the color palette
+        </p>
       </div>
 
-      {/* Thumbnail navigation */}
-      <div className="flex justify-center gap-3 flex-wrap">
-        {CARD_BACK_DESIGNS.map((design, index) => (
-          <button
-            key={design.id}
-            onClick={() => setCurrentIndex(index)}
-            className={cn(
-              "relative h-16 w-12 md:h-20 md:w-14 rounded-lg overflow-hidden transition-all duration-300",
-              "border-2",
-              index === currentIndex
-                ? "border-primary ring-2 ring-primary/20 scale-110"
-                : "border-transparent opacity-60 hover:opacity-100"
-            )}
-            data-testid={`thumbnail-${index}`}
-          >
-            <div
+      <div className="flex justify-center gap-2 md:gap-3">
+        {CARD_BACK_DESIGNS.map((design, index) => {
+          const baseDesign = baseDesigns[index];
+          const hueRotation = getHueRotation(baseDesign.baseHue);
+          
+          return (
+            <motion.button
+              key={design.id}
+              onClick={() => navigateTo(index)}
               className={cn(
-                "absolute inset-0 bg-gradient-to-br",
-                designColors[index]
+                "relative h-14 w-10 md:h-16 md:w-12 rounded-lg overflow-hidden transition-all duration-300",
+                "border-2",
+                index === currentIndex
+                  ? "border-primary scale-110 shadow-lg"
+                  : "border-transparent opacity-50 hover:opacity-80"
               )}
-            />
-            <div
-              className={cn(
-                "absolute inset-0",
-                designPatterns[index]
+              whileHover={{ scale: index === currentIndex ? 1.1 : 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              data-testid={`thumbnail-${index}`}
+            >
+              <div
+                className={cn(
+                  "absolute inset-0 bg-gradient-to-br",
+                  baseDesign.gradient
+                )}
+                style={{ filter: `hue-rotate(${hueRotation}deg)` }}
+              />
+              <div
+                className="absolute inset-0"
+                style={{ background: baseDesign.pattern }}
+              />
+              {selectedIndex === index && (
+                <div className="absolute inset-0 flex items-center justify-center bg-primary/30">
+                  <Check className="h-4 w-4 text-primary-foreground" />
+                </div>
               )}
-            />
-            {selectedIndex === index && (
-              <div className="absolute inset-0 flex items-center justify-center bg-primary/20">
-                <Check className="h-4 w-4 text-primary" />
-              </div>
-            )}
-          </button>
-        ))}
+            </motion.button>
+          );
+        })}
       </div>
 
-      {/* Select button */}
       <div className="flex justify-center">
-        <Button
-          size="lg"
-          onClick={() => onSelect(currentIndex, currentDesign.id)}
-          className={cn(
-            "gap-2 min-w-48",
-            isSelected && "bg-primary/80"
-          )}
-          data-testid="button-select-design"
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
         >
-          {isSelected ? (
-            <>
-              <Check className="h-4 w-4" />
-              Selected
-            </>
-          ) : (
-            "Select This Design"
-          )}
-        </Button>
+          <Button
+            size="lg"
+            onClick={() => onSelect(currentIndex, currentDesign.id, localHue)}
+            className={cn(
+              "gap-3 px-10 py-6 text-lg font-semibold",
+              isSelected && "bg-primary/90"
+            )}
+            data-testid="button-select-design"
+          >
+            {isSelected ? (
+              <>
+                <Check className="h-5 w-5" />
+                Design Selected
+              </>
+            ) : (
+              "Select This Design"
+            )}
+          </Button>
+        </motion.div>
       </div>
     </div>
   );

@@ -31,6 +31,8 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
+import { CardBackPreview } from "@/components/card-back-preview";
+
 const colorMap: Record<string, string> = {
   rose: "bg-rose-500",
   indigo: "bg-indigo-500",
@@ -38,14 +40,6 @@ const colorMap: Record<string, string> = {
   emerald: "bg-emerald-500",
   violet: "bg-violet-500",
 };
-
-const designColors = [
-  "from-gray-900 via-gray-800 to-gray-900",
-  "from-rose-300 via-pink-200 to-rose-300",
-  "from-indigo-900 via-blue-800 to-indigo-900",
-  "from-gray-100 via-white to-gray-100",
-  "from-red-700 via-red-600 to-red-700",
-];
 
 export default function Checkout() {
   const [, navigate] = useLocation();
@@ -342,13 +336,10 @@ export default function Checkout() {
               <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
 
               <div className="flex gap-4 mb-6">
-                {/* Card preview */}
-                <div
-                  className={cn(
-                    "relative aspect-[2.5/3.5] w-16 rounded-lg overflow-hidden shadow border",
-                    "bg-gradient-to-br",
-                    designColors[designIndex]
-                  )}
+                <CardBackPreview 
+                  designIndex={designIndex} 
+                  hue={config.cardBackHue || 0} 
+                  size="sm"
                 />
                 <div className="flex-1">
                   <p className="font-medium">Custom Conversation Deck</p>
