@@ -4,6 +4,7 @@ import { getDeckState, clearDeckState } from "@/lib/deck-state";
 import { CARD_BACK_DESIGNS } from "@shared/schema";
 import { StepIndicator } from "@/components/step-indicator";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { CelebrationOverlay } from "@/components/celebration-overlay";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -20,6 +21,7 @@ import { CardBackPreview } from "@/components/card-back-preview";
 
 export default function Success() {
   const [config] = useState(getDeckState);
+  const [showCelebration, setShowCelebration] = useState(true);
   const selectedDesign = CARD_BACK_DESIGNS.find(
     (d) => d.id === config.cardBackDesign
   );
@@ -35,6 +37,12 @@ export default function Success() {
 
   return (
     <div className="min-h-screen bg-background">
+      <CelebrationOverlay 
+        show={showCelebration} 
+        onComplete={() => setShowCelebration(false)}
+        duration={4000}
+      />
+
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4 md:px-6">
