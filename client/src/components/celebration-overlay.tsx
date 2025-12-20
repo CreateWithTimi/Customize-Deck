@@ -13,25 +13,12 @@ export function CelebrationOverlay({
   duration = 3000 
 }: CelebrationOverlayProps) {
   const [visible, setVisible] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
   const hasTriggeredRef = useRef(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  const assetId = isMobile ? "celebrationMobile" : "celebrationDesktop";
-  const triggerName = isMobile ? "celebrateMobile" : "celebrateDesktop";
-
   const riveAnimation = useRiveManaged(
-    shouldRender ? { assetId, autoplay: true, pauseWhenHidden: false } : null
+    shouldRender ? { assetId: "celebrationDesktop", autoplay: true, pauseWhenHidden: false } : null
   );
 
   const cleanup = useCallback(() => {
@@ -65,9 +52,9 @@ export function CelebrationOverlay({
 
   useEffect(() => {
     if (visible && riveAnimation.isReady) {
-      riveAnimation.fire(triggerName);
+      riveAnimation.fire("celebrateDesktop");
     }
-  }, [visible, riveAnimation.isReady, triggerName, riveAnimation]);
+  }, [visible, riveAnimation.isReady, riveAnimation]);
 
   if (!visible) return null;
 
