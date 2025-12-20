@@ -73,27 +73,40 @@ export default function Landing() {
         {/* Animated background gradients */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10" />
         <motion.div 
-          className="absolute top-0 left-1/4 w-96 h-96 bg-rose-500/10 rounded-full blur-3xl"
+          className="absolute top-0 left-1/4 w-96 h-96 bg-rose-500/15 rounded-full blur-3xl"
           animate={{
-            x: [0, 30, -20, 0],
-            y: [0, -25, 15, 0],
-            scale: [1, 1.05, 0.95, 1],
+            x: [0, 60, -40, 0],
+            y: [0, -50, 30, 0],
+            scale: [1, 1.1, 0.9, 1],
           }}
           transition={{
-            duration: 20,
+            duration: 12,
             repeat: Infinity,
             ease: "easeInOut",
           }}
         />
         <motion.div 
-          className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"
+          className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/15 rounded-full blur-3xl"
           animate={{
-            x: [0, -25, 20, 0],
-            y: [0, 20, -30, 0],
-            scale: [1, 0.95, 1.05, 1],
+            x: [0, -50, 40, 0],
+            y: [0, 40, -60, 0],
+            scale: [1, 0.9, 1.1, 1],
           }}
           transition={{
-            duration: 25,
+            duration: 15,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        <motion.div 
+          className="absolute top-1/2 right-1/3 w-72 h-72 bg-primary/10 rounded-full blur-3xl"
+          animate={{
+            x: [0, 40, -30, 0],
+            y: [0, -35, 45, 0],
+            scale: [1, 1.08, 0.92, 1],
+          }}
+          transition={{
+            duration: 18,
             repeat: Infinity,
             ease: "easeInOut",
           }}
