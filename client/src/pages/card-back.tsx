@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "wouter";
-import { getDeckState, setCardBack, validations, getDefaultCardBackColors } from "@/lib/deck-state";
+import { getDeckState, setCardBack, validations } from "@/lib/deck-state";
 import { StepIndicator } from "@/components/step-indicator";
 import { CardBackCarousel } from "@/components/card-back-carousel";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Heart, ArrowLeft, ChevronRight, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
-import { CardBackColors } from "@shared/schema";
 
 export default function CardBack() {
   const [, navigate] = useLocation();
@@ -16,28 +15,21 @@ export default function CardBack() {
     config.cardBackIndex
   );
   const [selectedHue, setSelectedHue] = useState(config.cardBackHue || 0);
-  const [selectedColors, setSelectedColors] = useState<CardBackColors | null>(
-    config.cardBackColors || null
-  );
 
   useEffect(() => {
     const currentConfig = getDeckState();
     setConfig(currentConfig);
     setSelectedHue(currentConfig.cardBackHue || 0);
-    setSelectedColors(currentConfig.cardBackColors || null);
 
     if (!validations.canProceedToCardBack(currentConfig)) {
       navigate("/customize");
     }
   }, [navigate]);
 
-  const handleSelect = (index: number, designId: string, hue: number, colors?: CardBackColors) => {
+  const handleSelect = (index: number, designId: string, hue: number) => {
     setSelectedIndex(index);
     setSelectedHue(hue);
-    if (colors) {
-      setSelectedColors(colors);
-    }
-    const newState = setCardBack(designId, index, hue, colors);
+    const newState = setCardBack(designId, index, hue);
     setConfig(newState);
   };
 
@@ -103,7 +95,6 @@ export default function CardBack() {
           <CardBackCarousel
             selectedIndex={selectedIndex}
             selectedHue={selectedHue}
-            selectedColors={selectedColors}
             onSelect={handleSelect}
           />
         </motion.div>

@@ -64,19 +64,10 @@ export const CARD_BACK_DESIGNS = [
   { id: "celestial", name: "Celestial", description: "Deep blue with constellation patterns", type: "static" as const },
   { id: "classic-marble", name: "Classic Marble", description: "Timeless white marble with gold veins", type: "static" as const },
   { id: "passion-red", name: "Passion Red", description: "Bold crimson with subtle heart motifs", type: "static" as const },
-  { id: "origin", name: "Origin", description: "Custom animated design with full color control", type: "rive" as const, riveAssetId: "originCardBack" },
+  { id: "origin", name: "Origin", description: "Premium animated design", type: "rive" as const, riveAssetId: "originCardBack" },
 ] as const;
 
 export type CardBackDesign = typeof CARD_BACK_DESIGNS[number];
-
-// Card back colors schema for Rive-based designs
-export const cardBackColorsSchema = z.object({
-  colorUp: z.string().default("#8B5CF6"),
-  colorDown: z.string().default("#EC4899"),
-  backgroundColor: z.string().default("#1F1F2E"),
-});
-
-export type CardBackColors = z.infer<typeof cardBackColorsSchema>;
 
 // Deck configuration schema
 export const deckConfigSchema = z.object({
@@ -91,7 +82,6 @@ export const deckConfigSchema = z.object({
   cardBackDesign: z.string().nullable(),
   cardBackIndex: z.number().nullable(),
   cardBackHue: z.number().min(0).max(360).default(0),
-  cardBackColors: cardBackColorsSchema.nullable().default(null),
 });
 
 export type DeckConfig = z.infer<typeof deckConfigSchema>;

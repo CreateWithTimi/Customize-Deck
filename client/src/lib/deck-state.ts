@@ -1,12 +1,6 @@
-import { DeckConfig, CATEGORIES, REQUIRED_TOTAL, Category, CardBackColors } from "@shared/schema";
+import { DeckConfig, CATEGORIES, REQUIRED_TOTAL, Category } from "@shared/schema";
 
 const STORAGE_KEY = "deckConfigV1";
-
-const DEFAULT_CARD_BACK_COLORS: CardBackColors = {
-  colorUp: "#8B5CF6",
-  colorDown: "#EC4899",
-  backgroundColor: "#1F1F2E",
-};
 
 // Get default empty config
 function getDefaultConfig(): DeckConfig {
@@ -22,7 +16,6 @@ function getDefaultConfig(): DeckConfig {
     cardBackDesign: null,
     cardBackIndex: null,
     cardBackHue: 0,
-    cardBackColors: null,
   };
 }
 
@@ -53,16 +46,6 @@ function sanitizeDeckConfig(raw: unknown): DeckConfig {
     config.cardBackDesign = rawObj.cardBackDesign;
     config.cardBackIndex = parseInt(String(rawObj.cardBackIndex)) || 0;
     config.cardBackHue = Math.max(0, Math.min(360, parseInt(String(rawObj.cardBackHue)) || 0));
-    
-    // Validate card back colors for Rive designs
-    if (rawObj.cardBackColors && typeof rawObj.cardBackColors === "object") {
-      const rawColors = rawObj.cardBackColors as Record<string, unknown>;
-      config.cardBackColors = {
-        colorUp: typeof rawColors.colorUp === "string" ? rawColors.colorUp : DEFAULT_CARD_BACK_COLORS.colorUp,
-        colorDown: typeof rawColors.colorDown === "string" ? rawColors.colorDown : DEFAULT_CARD_BACK_COLORS.colorDown,
-        backgroundColor: typeof rawColors.backgroundColor === "string" ? rawColors.backgroundColor : DEFAULT_CARD_BACK_COLORS.backgroundColor,
-      };
-    }
   }
 
   return config;
@@ -133,26 +116,12 @@ export function setCategoryCount(category: Category, value: number): DeckConfig 
 }
 
 // Set card back selection
-export function setCardBack(designId: string, index: number, hue: number = 0, colors?: CardBackColors): DeckConfig {
+export function setCardBack(designId: string, index: number, hue: number = 0): DeckConfig {
   return setDeckState({
     cardBackDesign: designId,
     cardBackIndex: index,
     cardBackHue: Math.max(0, Math.min(360, hue)),
-    cardBackColors: colors || null,
   });
-}
-
-// Set card back colors for Rive designs
-export function setCardBackColors(colors: CardBackColors): DeckConfig {
-  const state = getDeckState();
-  return setDeckState({
-    cardBackColors: colors,
-  });
-}
-
-// Get default card back colors
-export function getDefaultCardBackColors(): CardBackColors {
-  return { ...DEFAULT_CARD_BACK_COLORS };
 }
 
 // Clear all state

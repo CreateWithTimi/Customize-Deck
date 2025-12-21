@@ -3,17 +3,14 @@ import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import { ChevronLeft, ChevronRight, Check, Palette, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { CARD_BACK_DESIGNS, CardBackColors } from "@shared/schema";
+import { CARD_BACK_DESIGNS } from "@shared/schema";
 import { cn } from "@/lib/utils";
 import { RiveCardBack } from "./rive-card-back";
-import { ColorControlsPanel } from "./color-picker";
-import { getDefaultCardBackColors } from "@/lib/deck-state";
 
 interface CardBackCarouselProps {
   selectedIndex: number | null;
   selectedHue: number;
-  selectedColors?: CardBackColors | null;
-  onSelect: (index: number, designId: string, hue: number, colors?: CardBackColors) => void;
+  onSelect: (index: number, designId: string, hue: number) => void;
 }
 
 const baseDesigns = [
@@ -65,24 +62,16 @@ const baseDesigns = [
 export function CardBackCarousel({ 
   selectedIndex, 
   selectedHue,
-  selectedColors,
   onSelect 
 }: CardBackCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(selectedIndex ?? 0);
   const [localHue, setLocalHue] = useState(selectedHue);
-  const [localColors, setLocalColors] = useState<CardBackColors>(
-    selectedColors || getDefaultCardBackColors()
-  );
   const [isDragging, setIsDragging] = useState(false);
   
   const currentDesign = CARD_BACK_DESIGNS[currentIndex];
   const currentBaseDesign = baseDesigns[currentIndex];
   const isRiveDesign = currentBaseDesign?.type === "rive";
-  const isSelected = selectedIndex === currentIndex && 
-    (isRiveDesign 
-      ? JSON.stringify(localColors) === JSON.stringify(selectedColors)
-      : selectedHue === localHue
-    );
+  const isSelected = selectedIndex === currentIndex && (isRiveDesign || selectedHue === localHue);
 
   useEffect(() => {
     if (selectedIndex !== null && selectedIndex !== currentIndex) {
@@ -94,20 +83,9 @@ export function CardBackCarousel({
     setLocalHue(selectedHue);
   }, [selectedHue]);
 
-  useEffect(() => {
-    if (selectedColors) {
-      setLocalColors(selectedColors);
-    }
-  }, [selectedColors]);
-
   const navigateTo = (newIndex: number) => {
     setCurrentIndex(newIndex);
-    const design = baseDesigns[newIndex];
-    if (design?.type === "rive") {
-      onSelect(newIndex, CARD_BACK_DESIGNS[newIndex].id, 0, localColors);
-    } else {
-      onSelect(newIndex, CARD_BACK_DESIGNS[newIndex].id, localHue);
-    }
+    onSelect(newIndex, CARD_BACK_DESIGNS[newIndex].id, localHue);
   };
 
   const goToPrev = () => {
@@ -133,12 +111,6 @@ export function CardBackCarousel({
     const newHue = value[0];
     setLocalHue(newHue);
     onSelect(currentIndex, currentDesign.id, newHue);
-  };
-
-  const handleColorChange = (key: keyof CardBackColors, value: string) => {
-    const newColors = { ...localColors, [key]: value };
-    setLocalColors(newColors);
-    onSelect(currentIndex, currentDesign.id, 0, newColors);
   };
 
   const getCardStyle = (index: number) => {
@@ -237,7 +209,6 @@ export function CardBackCarousel({
                     {design.type === "rive" && "riveAssetId" in design ? (
                       <RiveCardBack
                         assetId={design.riveAssetId}
-                        colors={localColors}
                         className="absolute inset-0"
                       />
                     ) : (
@@ -350,18 +321,7 @@ export function CardBackCarousel({
         <p className="text-muted-foreground text-lg">{currentDesign.description}</p>
       </motion.div>
 
-      {isRiveDesign ? (
-        <div className="max-w-md mx-auto">
-          <ColorControlsPanel
-            colorUp={localColors.colorUp}
-            colorDown={localColors.colorDown}
-            backgroundColor={localColors.backgroundColor}
-            onColorUpChange={(color) => handleColorChange("colorUp", color)}
-            onColorDownChange={(color) => handleColorChange("colorDown", color)}
-            onBackgroundColorChange={(color) => handleColorChange("backgroundColor", color)}
-          />
-        </div>
-      ) : (
+      {!isRiveDesign && (
         <div className="max-w-md mx-auto space-y-4 p-6 rounded-xl bg-muted/30 border">
           <div className="flex items-center gap-3">
             <Palette className="h-5 w-5 text-muted-foreground" />
@@ -413,10 +373,7 @@ export function CardBackCarousel({
             >
               {isRive ? (
                 <div 
-                  className="absolute inset-0 flex items-center justify-center"
-                  style={{ 
-                    background: `linear-gradient(to bottom, ${localColors.colorUp}, ${localColors.colorDown})` 
-                  }}
+                  className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-purple-600 to-indigo-800"
                 >
                   <Sparkles className="h-4 w-4 text-white/70" />
                 </div>
@@ -453,11 +410,7 @@ export function CardBackCarousel({
           <Button
             size="lg"
             onClick={() => {
-              if (isRiveDesign) {
-                onSelect(currentIndex, currentDesign.id, 0, localColors);
-              } else {
-                onSelect(currentIndex, currentDesign.id, localHue);
-              }
+              onSelect(currentIndex, currentDesign.id, localHue);
             }}
             className={cn(
               "gap-3 px-10 py-6 text-lg font-semibold",
