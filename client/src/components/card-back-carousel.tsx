@@ -65,6 +65,14 @@ const baseDesigns = [
     type: "rive" as const,
     riveAssetId: "pulseCardBack",
   },
+  {
+    gradient: "",
+    pattern: "",
+    accent: "indigo",
+    baseHue: 0,
+    type: "rive" as const,
+    riveAssetId: "afterHoursCardBack",
+  },
 ];
 
 export function CardBackCarousel({ 

@@ -169,6 +169,16 @@ export const RIVE_ASSETS: Record<string, RiveAssetDefinition> = {
     description: 'Pulse card back design with animated effects',
     preload: false,
   },
+
+  afterHoursCardBack: {
+    id: 'afterHoursCardBack',
+    src: '/afterhours.riv',
+    artboard: 'afterHoursCardBack',
+    stateMachine: 'afterHoursState',
+    inputs: [],
+    description: 'After Hours card back design',
+    preload: false,
+  },
 };
 
 /**

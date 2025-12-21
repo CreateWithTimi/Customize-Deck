@@ -66,6 +66,7 @@ export const CARD_BACK_DESIGNS = [
   { id: "passion-red", name: "Passion Red", description: "Bold crimson with subtle heart motifs", type: "static" as const },
   { id: "origin", name: "Origin", description: "Premium animated design", type: "rive" as const, riveAssetId: "originCardBack" },
   { id: "pulse", name: "Pulse", description: "Dynamic animated pulse effect", type: "rive" as const, riveAssetId: "pulseCardBack" },
+  { id: "after-hours", name: "After Hours", description: "Elegant nighttime ambiance", type: "rive" as const, riveAssetId: "afterHoursCardBack" },
 ] as const;
 
 export type CardBackDesign = typeof CARD_BACK_DESIGNS[number];
