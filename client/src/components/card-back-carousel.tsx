@@ -102,18 +102,17 @@ export function CardBackCarousel({
     onSelect(currentIndex, currentDesign.id, newHue);
   };
 
-  const getCardStyle = (index: number) => {
-    const diff = index - currentIndex;
-    const absIndex = Math.abs(diff);
+  const getCardStyle = (offset: number) => {
+    const absOffset = Math.abs(offset);
     
-    if (absIndex > 2) return { display: "none" };
+    if (absOffset > 2) return { display: "none" };
     
-    const xOffset = diff * 120;
-    const scale = 1 - absIndex * 0.15;
-    const zIndex = 10 - absIndex;
-    const rotateY = diff * -15;
-    const blur = absIndex * 2;
-    const opacity = 1 - absIndex * 0.3;
+    const xOffset = offset * 120;
+    const scale = 1 - absOffset * 0.15;
+    const zIndex = 10 - absOffset;
+    const rotateY = offset * -15;
+    const blur = absOffset * 2;
+    const opacity = 1 - absOffset * 0.3;
 
     return {
       x: xOffset,
@@ -127,10 +126,12 @@ export function CardBackCarousel({
 
   const cardIndices = useMemo(() => {
     const indices = [];
-    for (let i = -2; i <= 2; i++) {
+    const totalCards = CARD_BACK_DESIGNS.length;
+    const maxOffset = Math.min(2, Math.floor((totalCards - 1) / 2));
+    for (let i = -maxOffset; i <= maxOffset; i++) {
       let index = currentIndex + i;
-      if (index < 0) index = CARD_BACK_DESIGNS.length + index;
-      if (index >= CARD_BACK_DESIGNS.length) index = index - CARD_BACK_DESIGNS.length;
+      if (index < 0) index = totalCards + index;
+      if (index >= totalCards) index = index - totalCards;
       indices.push({ offset: i, index });
     }
     return indices;
@@ -164,13 +165,13 @@ export function CardBackCarousel({
             {cardIndices.map(({ offset, index }) => {
               const design = baseDesigns[index];
               if (!design) return null;
-              const cardStyle = getCardStyle(index);
+              const cardStyle = getCardStyle(offset);
               const isCurrent = offset === 0;
               const hueRotation = getHueRotation(design.baseHue || 0);
 
               return (
                 <motion.div
-                  key={`card-${index}`}
+                  key={`card-${offset}-${index}`}
                   className="absolute cursor-grab active:cursor-grabbing"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={cardStyle}
