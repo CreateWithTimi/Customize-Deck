@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Sparkles } from "lucide-react";
 
@@ -18,52 +19,184 @@ export function RiveCardBack({
   assetId, 
   colors, 
   className,
+  onReady 
 }: RiveCardBackProps) {
-  return (
-    <div 
-      className={cn(
-        "relative flex items-center justify-center overflow-hidden",
-        className
-      )}
-      style={{ 
-        backgroundColor: colors.backgroundColor,
-      }}
-      data-testid={`rive-card-back-${assetId}`}
-    >
-      <div 
-        className="absolute inset-0"
-        style={{ 
-          background: `linear-gradient(135deg, ${colors.colorUp} 0%, ${colors.colorDown} 100%)`,
-          opacity: 0.9,
-        }}
-      />
+  const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const riveRef = useRef<any>(null);
+  const viewModelInstanceRef = useRef<any>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function initRive() {
+      if (!canvasRef.current) return;
+
+      try {
+        const RiveModule = await import("@rive-app/webgl2");
+        
+        const riveInstance = new RiveModule.Rive({
+          src: '/origin.riv',
+          canvas: canvasRef.current,
+          artboard: 'originCardBack',
+          stateMachines: 'originState',
+          autoplay: true,
+          onLoad: () => {
+            if (!mounted) return;
+            
+            try {
+              const defaultVM = riveInstance.defaultViewModelInstance;
+              
+              if (defaultVM) {
+                viewModelInstanceRef.current = defaultVM;
+                
+                const colorUpProp = defaultVM.color('colorUp');
+                const colorDownProp = defaultVM.color('colorDown');
+                const bgColorProp = defaultVM.color('backgroundColor');
+
+                if (colorUpProp) {
+                  const rgb = hexToRgb(colors.colorUp);
+                  colorUpProp.setRgb(rgb.r, rgb.g, rgb.b);
+                }
+                if (colorDownProp) {
+                  const rgb = hexToRgb(colors.colorDown);
+                  colorDownProp.setRgb(rgb.r, rgb.g, rgb.b);
+                }
+                if (bgColorProp) {
+                  const rgb = hexToRgb(colors.backgroundColor);
+                  bgColorProp.setRgb(rgb.r, rgb.g, rgb.b);
+                }
+              }
+              
+              setIsLoaded(true);
+              onReady?.();
+            } catch (err) {
+              console.warn('View model binding failed, using fallback:', err);
+              setHasError(true);
+              setIsLoaded(true);
+              onReady?.();
+            }
+          },
+          onLoadError: () => {
+            if (!mounted) return;
+            console.warn('Rive file failed to load, using fallback');
+            setHasError(true);
+            setIsLoaded(true);
+            onReady?.();
+          },
+        });
+
+        riveRef.current = riveInstance;
+      } catch (err) {
+        console.warn('Rive initialization failed, using fallback:', err);
+        if (mounted) {
+          setHasError(true);
+          setIsLoaded(true);
+          onReady?.();
+        }
+      }
+    }
+
+    initRive();
+
+    return () => {
+      mounted = false;
+      if (riveRef.current) {
+        riveRef.current.cleanup();
+        riveRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!viewModelInstanceRef.current || hasError) return;
+
+    try {
+      const vm = viewModelInstanceRef.current;
       
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="relative">
-          <div 
-            className="h-20 w-20 md:h-24 md:w-24 rounded-full border-2 flex items-center justify-center"
-            style={{ borderColor: `${colors.colorUp}40` }}
-          >
+      const colorUpProp = vm.color('colorUp');
+      const colorDownProp = vm.color('colorDown');
+      const bgColorProp = vm.color('backgroundColor');
+
+      if (colorUpProp) {
+        const rgb = hexToRgb(colors.colorUp);
+        colorUpProp.setRgb(rgb.r, rgb.g, rgb.b);
+      }
+      if (colorDownProp) {
+        const rgb = hexToRgb(colors.colorDown);
+        colorDownProp.setRgb(rgb.r, rgb.g, rgb.b);
+      }
+      if (bgColorProp) {
+        const rgb = hexToRgb(colors.backgroundColor);
+        bgColorProp.setRgb(rgb.r, rgb.g, rgb.b);
+      }
+    } catch (err) {
+      console.warn('Color update failed:', err);
+    }
+  }, [colors, hasError]);
+
+  if (hasError || !isLoaded) {
+    return (
+      <div 
+        ref={containerRef}
+        className={cn(
+          "relative overflow-hidden rounded-md",
+          className
+        )}
+        style={{ 
+          backgroundColor: colors.backgroundColor,
+        }}
+        data-testid={`rive-card-back-${assetId}`}
+      >
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: `linear-gradient(135deg, ${colors.colorUp} 0%, ${colors.colorDown} 100%)`,
+          }}
+        />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="relative">
             <div 
-              className="h-12 w-12 md:h-14 md:w-14 rounded-full border flex items-center justify-center"
-              style={{ borderColor: `${colors.colorDown}60` }}
-            >
-              <Sparkles 
-                className="h-6 w-6 md:h-8 md:w-8" 
-                style={{ color: `${colors.colorUp}` }}
-              />
-            </div>
+              className="absolute inset-0 blur-xl opacity-60"
+              style={{ backgroundColor: colors.colorUp }}
+            />
+            <Sparkles className="relative h-12 w-12 text-white/80" />
           </div>
         </div>
+        {!isLoaded && (
+          <canvas 
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full opacity-0"
+          />
+        )}
       </div>
-      
-      <div 
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.15) 45%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.15) 55%, transparent 60%)",
-          backgroundSize: "200% 100%",
-        }}
+    );
+  }
+
+  return (
+    <div 
+      ref={containerRef}
+      className={cn(
+        "relative overflow-hidden rounded-md",
+        className
+      )}
+      data-testid={`rive-card-back-${assetId}`}
+    >
+      <canvas 
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full"
       />
     </div>
   );
+}
+
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const cleanHex = hex.replace('#', '');
+  return {
+    r: parseInt(cleanHex.substring(0, 2), 16),
+    g: parseInt(cleanHex.substring(2, 4), 16),
+    b: parseInt(cleanHex.substring(4, 6), 16),
+  };
 }
