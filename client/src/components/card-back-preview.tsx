@@ -10,39 +10,11 @@ interface CardBackPreviewProps {
 
 const baseDesigns = [
   { 
-    gradient: "from-gray-900 via-gray-800 to-gray-900",
-    pattern: "radial-gradient(circle at 30% 20%, rgba(255,215,0,0.3) 0%, transparent 50%)",
-    accent: "gold",
+    gradient: "",
+    pattern: "",
+    accent: "multi",
     baseHue: 0,
-    type: "static" as const,
-  },
-  { 
-    gradient: "from-rose-400 via-pink-300 to-rose-400",
-    pattern: "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 0%, transparent 70%)",
-    accent: "white",
-    baseHue: 340,
-    type: "static" as const,
-  },
-  { 
-    gradient: "from-indigo-800 via-blue-700 to-indigo-800",
-    pattern: "radial-gradient(circle at 20% 80%, rgba(255,255,255,0.2) 0%, transparent 40%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.2) 0%, transparent 40%)",
-    accent: "white",
-    baseHue: 230,
-    type: "static" as const,
-  },
-  { 
-    gradient: "from-stone-200 via-white to-stone-200",
-    pattern: "linear-gradient(45deg, rgba(212,175,55,0.3) 0%, transparent 50%, rgba(212,175,55,0.3) 100%)",
-    accent: "gold",
-    baseHue: 40,
-    type: "static" as const,
-  },
-  { 
-    gradient: "from-red-600 via-rose-500 to-red-600",
-    pattern: "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.15) 0%, transparent 60%)",
-    accent: "white",
-    baseHue: 0,
-    type: "static" as const,
+    type: "custom" as const,
   },
   {
     gradient: "",
@@ -83,8 +55,8 @@ export function CardBackPreview({
   size = "md" 
 }: CardBackPreviewProps) {
   const design = baseDesigns[designIndex] || baseDesigns[0];
-  const hueRotation = hue - (design.baseHue || 0);
   const isRive = design.type === "rive";
+  const isCustom = design.type === "custom";
 
   return (
     <div
@@ -99,37 +71,28 @@ export function CardBackPreview({
           assetId={design.riveAssetId}
           className="absolute inset-0"
         />
-      ) : (
+      ) : isCustom ? (
         <>
           <div
-            className={cn(
-              "absolute inset-0 bg-gradient-to-br",
-              design.gradient
-            )}
-            style={{ filter: `hue-rotate(${hueRotation}deg)` }}
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(135deg, hsl(${hue}, 70%, 15%) 0%, hsl(${hue + 30}, 80%, 25%) 50%, hsl(${hue + 60}, 70%, 20%) 100%)`
+            }}
           />
           <div
             className="absolute inset-0"
-            style={{ background: design.pattern }}
+            style={{
+              background: `radial-gradient(circle at 30% 20%, hsl(${hue + 20}, 90%, 50%, 0.3) 0%, transparent 50%), radial-gradient(circle at 70% 80%, hsl(${hue + 40}, 90%, 40%, 0.2) 0%, transparent 50%)`
+            }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-white/5" />
           <div className="absolute inset-0 flex items-center justify-center">
-            <div 
-              className={cn(
-                "h-10 w-10 md:h-12 md:w-12 rounded-full border-2 flex items-center justify-center",
-                design.accent === "gold" ? "border-yellow-400/40" : "border-white/30"
-              )}
-            >
-              <div 
-                className={cn(
-                  "h-6 w-6 md:h-7 md:w-7 rounded-full border",
-                  design.accent === "gold" ? "border-yellow-400/60" : "border-white/40"
-                )} 
-              />
+            <div className="h-10 w-10 md:h-12 md:w-12 rounded-full border-2 border-white/30 flex items-center justify-center">
+              <div className="h-6 w-6 md:h-7 md:w-7 rounded-full border border-white/40" />
             </div>
           </div>
         </>
-      )}
+      ) : null}
     </div>
   );
 }

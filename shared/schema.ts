@@ -59,11 +59,7 @@ export const CATEGORY_META: Record<Category, { label: string; description: strin
 
 // Card back designs
 export const CARD_BACK_DESIGNS = [
-  { id: "midnight-noir", name: "Midnight Noir", description: "Elegant black with gold foil accents", type: "static" as const },
-  { id: "rose-garden", name: "Rose Garden", description: "Romantic blush pink with floral patterns", type: "static" as const },
-  { id: "celestial", name: "Celestial", description: "Deep blue with constellation patterns", type: "static" as const },
-  { id: "classic-marble", name: "Classic Marble", description: "Timeless white marble with gold veins", type: "static" as const },
-  { id: "passion-red", name: "Passion Red", description: "Bold crimson with subtle heart motifs", type: "static" as const },
+  { id: "custom-gradient", name: "Custom Gradient", description: "Customize your own color scheme", type: "custom" as const },
   { id: "origin", name: "Origin", description: "Premium animated design", type: "rive" as const, riveAssetId: "originCardBack" },
   { id: "pulse", name: "Pulse", description: "Dynamic animated pulse effect", type: "rive" as const, riveAssetId: "pulseCardBack" },
   { id: "after-hours", name: "After Hours", description: "Elegant nighttime ambiance", type: "rive" as const, riveAssetId: "afterHoursCardBack" },

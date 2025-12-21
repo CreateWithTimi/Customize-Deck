@@ -15,39 +15,11 @@ interface CardBackCarouselProps {
 
 const baseDesigns = [
   { 
-    gradient: "from-gray-900 via-gray-800 to-gray-900",
-    pattern: "radial-gradient(circle at 30% 20%, rgba(255,215,0,0.3) 0%, transparent 50%)",
-    accent: "gold",
+    gradient: "",
+    pattern: "",
+    accent: "multi",
     baseHue: 0,
-    type: "static" as const,
-  },
-  { 
-    gradient: "from-rose-400 via-pink-300 to-rose-400",
-    pattern: "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 0%, transparent 70%)",
-    accent: "white",
-    baseHue: 340,
-    type: "static" as const,
-  },
-  { 
-    gradient: "from-indigo-800 via-blue-700 to-indigo-800",
-    pattern: "radial-gradient(circle at 20% 80%, rgba(255,255,255,0.2) 0%, transparent 40%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.2) 0%, transparent 40%)",
-    accent: "white",
-    baseHue: 230,
-    type: "static" as const,
-  },
-  { 
-    gradient: "from-stone-200 via-white to-stone-200",
-    pattern: "linear-gradient(45deg, rgba(212,175,55,0.3) 0%, transparent 50%, rgba(212,175,55,0.3) 100%)",
-    accent: "gold",
-    baseHue: 40,
-    type: "static" as const,
-  },
-  { 
-    gradient: "from-red-600 via-rose-500 to-red-600",
-    pattern: "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.15) 0%, transparent 60%)",
-    accent: "white",
-    baseHue: 0,
-    type: "static" as const,
+    type: "custom" as const,
   },
   {
     gradient: "",
@@ -87,6 +59,7 @@ export function CardBackCarousel({
   const currentDesign = CARD_BACK_DESIGNS[currentIndex];
   const currentBaseDesign = baseDesigns[currentIndex];
   const isRiveDesign = currentBaseDesign?.type === "rive";
+  const isCustomDesign = currentBaseDesign?.type === "custom";
   const isSelected = selectedIndex === currentIndex && (isRiveDesign || selectedHue === localHue);
 
   useEffect(() => {
@@ -228,39 +201,26 @@ export function CardBackCarousel({
                         assetId={design.riveAssetId}
                         className="absolute inset-0"
                       />
-                    ) : (
+                    ) : design.type === "custom" ? (
                       <>
                         <div
-                          className={cn(
-                            "absolute inset-0 bg-gradient-to-br",
-                            design.gradient
-                          )}
-                          style={{ filter: `hue-rotate(${hueRotation}deg)` }}
+                          className="absolute inset-0"
+                          style={{
+                            background: `linear-gradient(135deg, hsl(${localHue}, 70%, 15%) 0%, hsl(${localHue + 30}, 80%, 25%) 50%, hsl(${localHue + 60}, 70%, 20%) 100%)`
+                          }}
                         />
-                        
                         <div
                           className="absolute inset-0"
-                          style={{ background: design.pattern }}
+                          style={{
+                            background: `radial-gradient(circle at 30% 20%, hsl(${localHue + 20}, 90%, 50%, 0.3) 0%, transparent 50%), radial-gradient(circle at 70% 80%, hsl(${localHue + 40}, 90%, 40%, 0.2) 0%, transparent 50%)`
+                          }}
                         />
-
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/10" />
-
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-white/5" />
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="relative">
-                            <div 
-                              className={cn(
-                                "h-20 w-20 md:h-24 md:w-24 rounded-full border-2 flex items-center justify-center",
-                                design.accent === "gold" ? "border-yellow-400/40" : "border-white/30"
-                              )}
-                            >
-                              <div 
-                                className={cn(
-                                  "h-12 w-12 md:h-14 md:w-14 rounded-full border",
-                                  design.accent === "gold" ? "border-yellow-400/60" : "border-white/40"
-                                )} 
-                              />
+                            <div className="h-20 w-20 md:h-24 md:w-24 rounded-full border-2 border-white/30 flex items-center justify-center">
+                              <div className="h-12 w-12 md:h-14 md:w-14 rounded-full border border-white/40" />
                             </div>
-                            
                             {isCurrent && (
                               <motion.div
                                 className="absolute inset-0 rounded-full"
@@ -275,16 +235,14 @@ export function CardBackCarousel({
                                   ease: "easeInOut"
                                 }}
                                 style={{
-                                  background: design.accent === "gold" 
-                                    ? "radial-gradient(circle, rgba(255,215,0,0.3) 0%, transparent 70%)"
-                                    : "radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%)"
+                                  background: `radial-gradient(circle, hsl(${localHue + 20}, 90%, 60%, 0.4) 0%, transparent 70%)`
                                 }}
                               />
                             )}
                           </div>
                         </div>
                       </>
-                    )}
+                    ) : null}
 
                     {isCurrent && isSelected && (
                       <motion.div 
@@ -297,7 +255,7 @@ export function CardBackCarousel({
                       </motion.div>
                     )}
 
-                    {isCurrent && design.type !== "rive" && (
+                    {isCurrent && design.type === "custom" && (
                       <motion.div
                         className="absolute inset-0 pointer-events-none"
                         initial={{ opacity: 0 }}
@@ -338,7 +296,7 @@ export function CardBackCarousel({
         <p className="text-muted-foreground text-lg">{currentDesign.description}</p>
       </motion.div>
 
-      {!isRiveDesign && (
+      {isCustomDesign && (
         <div className="max-w-md mx-auto space-y-4 p-6 rounded-xl bg-muted/30 border">
           <div className="flex items-center gap-3">
             <Palette className="h-5 w-5 text-muted-foreground" />
@@ -395,21 +353,14 @@ export function CardBackCarousel({
                 >
                   <Sparkles className="h-4 w-4 text-white/70" />
                 </div>
-              ) : (
-                <>
-                  <div
-                    className={cn(
-                      "absolute inset-0 bg-gradient-to-br",
-                      baseDesign?.gradient
-                    )}
-                    style={{ filter: `hue-rotate(${hueRotation}deg)` }}
-                  />
-                  <div
-                    className="absolute inset-0"
-                    style={{ background: baseDesign?.pattern }}
-                  />
-                </>
-              )}
+              ) : baseDesign?.type === "custom" ? (
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background: `linear-gradient(135deg, hsl(${localHue}, 70%, 15%) 0%, hsl(${localHue + 30}, 80%, 25%) 50%, hsl(${localHue + 60}, 70%, 20%) 100%)`
+                  }}
+                />
+              ) : null}
               {selectedIndex === index && (
                 <div className="absolute inset-0 flex items-center justify-center bg-primary/30">
                   <Check className="h-4 w-4 text-primary-foreground" />
