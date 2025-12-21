@@ -21,6 +21,17 @@ export interface RiveInputDefinition {
   description?: string;
 }
 
+export interface RiveViewModelProperty {
+  name: string;
+  type: 'color' | 'number' | 'boolean' | 'string';
+  description?: string;
+}
+
+export interface RiveViewModelDefinition {
+  name: string;
+  properties: RiveViewModelProperty[];
+}
+
 export interface RiveAssetDefinition {
   id: string;
   src: string;
@@ -29,6 +40,7 @@ export interface RiveAssetDefinition {
   inputs: RiveInputDefinition[];
   description?: string;
   preload?: boolean;
+  viewModel?: RiveViewModelDefinition;
 }
 
 export const RIVE_ASSETS: Record<string, RiveAssetDefinition> = {
@@ -136,6 +148,24 @@ export const RIVE_ASSETS: Record<string, RiveAssetDefinition> = {
     ],
     description: 'Full-screen celebration animation for mobile when deck reaches 52 cards',
     preload: false,
+  },
+
+  originCardBack: {
+    id: 'originCardBack',
+    src: '/origin.riv',
+    artboard: 'originCardBack',
+    stateMachine: 'originState',
+    inputs: [],
+    description: 'Origin card back design with view model color binding',
+    preload: false,
+    viewModel: {
+      name: 'originVM',
+      properties: [
+        { name: 'colorUp', type: 'color', description: 'Top gradient color' },
+        { name: 'colorDown', type: 'color', description: 'Bottom gradient color' },
+        { name: 'backgroundColor', type: 'color', description: 'Background color' },
+      ],
+    },
   },
 };
 

@@ -1,15 +1,19 @@
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
-import { ChevronLeft, ChevronRight, Check, Palette } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, Palette, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { CARD_BACK_DESIGNS } from "@shared/schema";
+import { CARD_BACK_DESIGNS, CardBackColors } from "@shared/schema";
 import { cn } from "@/lib/utils";
+import { RiveCardBack } from "./rive-card-back";
+import { ColorControlsPanel } from "./color-picker";
+import { getDefaultCardBackColors } from "@/lib/deck-state";
 
 interface CardBackCarouselProps {
   selectedIndex: number | null;
   selectedHue: number;
-  onSelect: (index: number, designId: string, hue: number) => void;
+  selectedColors?: CardBackColors | null;
+  onSelect: (index: number, designId: string, hue: number, colors?: CardBackColors) => void;
 }
 
 const baseDesigns = [
@@ -17,45 +21,68 @@ const baseDesigns = [
     gradient: "from-gray-900 via-gray-800 to-gray-900",
     pattern: "radial-gradient(circle at 30% 20%, rgba(255,215,0,0.3) 0%, transparent 50%)",
     accent: "gold",
-    baseHue: 0
+    baseHue: 0,
+    type: "static" as const,
   },
   { 
     gradient: "from-rose-400 via-pink-300 to-rose-400",
     pattern: "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 0%, transparent 70%)",
     accent: "white",
-    baseHue: 340
+    baseHue: 340,
+    type: "static" as const,
   },
   { 
     gradient: "from-indigo-800 via-blue-700 to-indigo-800",
     pattern: "radial-gradient(circle at 20% 80%, rgba(255,255,255,0.2) 0%, transparent 40%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.2) 0%, transparent 40%)",
     accent: "white",
-    baseHue: 230
+    baseHue: 230,
+    type: "static" as const,
   },
   { 
     gradient: "from-stone-200 via-white to-stone-200",
     pattern: "linear-gradient(45deg, rgba(212,175,55,0.3) 0%, transparent 50%, rgba(212,175,55,0.3) 100%)",
     accent: "gold",
-    baseHue: 40
+    baseHue: 40,
+    type: "static" as const,
   },
   { 
     gradient: "from-red-600 via-rose-500 to-red-600",
     pattern: "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.15) 0%, transparent 60%)",
     accent: "white",
-    baseHue: 0
+    baseHue: 0,
+    type: "static" as const,
+  },
+  {
+    gradient: "",
+    pattern: "",
+    accent: "purple",
+    baseHue: 0,
+    type: "rive" as const,
+    riveAssetId: "originCardBack",
   },
 ];
 
 export function CardBackCarousel({ 
   selectedIndex, 
   selectedHue,
+  selectedColors,
   onSelect 
 }: CardBackCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(selectedIndex ?? 0);
   const [localHue, setLocalHue] = useState(selectedHue);
+  const [localColors, setLocalColors] = useState<CardBackColors>(
+    selectedColors || getDefaultCardBackColors()
+  );
   const [isDragging, setIsDragging] = useState(false);
   
   const currentDesign = CARD_BACK_DESIGNS[currentIndex];
-  const isSelected = selectedIndex === currentIndex && selectedHue === localHue;
+  const currentBaseDesign = baseDesigns[currentIndex];
+  const isRiveDesign = currentBaseDesign?.type === "rive";
+  const isSelected = selectedIndex === currentIndex && 
+    (isRiveDesign 
+      ? JSON.stringify(localColors) === JSON.stringify(selectedColors)
+      : selectedHue === localHue
+    );
 
   useEffect(() => {
     if (selectedIndex !== null && selectedIndex !== currentIndex) {
@@ -67,9 +94,20 @@ export function CardBackCarousel({
     setLocalHue(selectedHue);
   }, [selectedHue]);
 
+  useEffect(() => {
+    if (selectedColors) {
+      setLocalColors(selectedColors);
+    }
+  }, [selectedColors]);
+
   const navigateTo = (newIndex: number) => {
     setCurrentIndex(newIndex);
-    onSelect(newIndex, CARD_BACK_DESIGNS[newIndex].id, localHue);
+    const design = baseDesigns[newIndex];
+    if (design?.type === "rive") {
+      onSelect(newIndex, CARD_BACK_DESIGNS[newIndex].id, 0, localColors);
+    } else {
+      onSelect(newIndex, CARD_BACK_DESIGNS[newIndex].id, localHue);
+    }
   };
 
   const goToPrev = () => {
@@ -95,6 +133,12 @@ export function CardBackCarousel({
     const newHue = value[0];
     setLocalHue(newHue);
     onSelect(currentIndex, currentDesign.id, newHue);
+  };
+
+  const handleColorChange = (key: keyof CardBackColors, value: string) => {
+    const newColors = { ...localColors, [key]: value };
+    setLocalColors(newColors);
+    onSelect(currentIndex, currentDesign.id, 0, newColors);
   };
 
   const getCardStyle = (index: number) => {
@@ -190,59 +234,69 @@ export function CardBackCarousel({
                       isCurrent && isSelected && "ring-4 ring-primary ring-offset-2 ring-offset-background"
                     )}
                   >
-                    <div
-                      className={cn(
-                        "absolute inset-0 bg-gradient-to-br",
-                        design.gradient
-                      )}
-                      style={{ filter: `hue-rotate(${hueRotation}deg)` }}
-                    />
-                    
-                    <div
-                      className="absolute inset-0"
-                      style={{ background: design.pattern }}
-                    />
-
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/10" />
-
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="relative">
-                        <div 
+                    {design.type === "rive" && "riveAssetId" in design ? (
+                      <RiveCardBack
+                        assetId={design.riveAssetId}
+                        colors={localColors}
+                        className="absolute inset-0"
+                      />
+                    ) : (
+                      <>
+                        <div
                           className={cn(
-                            "h-20 w-20 md:h-24 md:w-24 rounded-full border-2 flex items-center justify-center",
-                            design.accent === "gold" ? "border-yellow-400/40" : "border-white/30"
+                            "absolute inset-0 bg-gradient-to-br",
+                            design.gradient
                           )}
-                        >
-                          <div 
-                            className={cn(
-                              "h-12 w-12 md:h-14 md:w-14 rounded-full border",
-                              design.accent === "gold" ? "border-yellow-400/60" : "border-white/40"
-                            )} 
-                          />
-                        </div>
+                          style={{ filter: `hue-rotate(${hueRotation}deg)` }}
+                        />
                         
-                        {isCurrent && (
-                          <motion.div
-                            className="absolute inset-0 rounded-full"
-                            initial={{ opacity: 0 }}
-                            animate={{ 
-                              opacity: [0.3, 0.6, 0.3],
-                              scale: [1, 1.1, 1]
-                            }}
-                            transition={{ 
-                              duration: 2, 
-                              repeat: Infinity,
-                              ease: "easeInOut"
-                            }}
-                            style={{
-                              background: design.accent === "gold" 
-                                ? "radial-gradient(circle, rgba(255,215,0,0.3) 0%, transparent 70%)"
-                                : "radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%)"
-                            }}
-                          />
-                        )}
-                      </div>
-                    </div>
+                        <div
+                          className="absolute inset-0"
+                          style={{ background: design.pattern }}
+                        />
+
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/10" />
+
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="relative">
+                            <div 
+                              className={cn(
+                                "h-20 w-20 md:h-24 md:w-24 rounded-full border-2 flex items-center justify-center",
+                                design.accent === "gold" ? "border-yellow-400/40" : "border-white/30"
+                              )}
+                            >
+                              <div 
+                                className={cn(
+                                  "h-12 w-12 md:h-14 md:w-14 rounded-full border",
+                                  design.accent === "gold" ? "border-yellow-400/60" : "border-white/40"
+                                )} 
+                              />
+                            </div>
+                            
+                            {isCurrent && (
+                              <motion.div
+                                className="absolute inset-0 rounded-full"
+                                initial={{ opacity: 0 }}
+                                animate={{ 
+                                  opacity: [0.3, 0.6, 0.3],
+                                  scale: [1, 1.1, 1]
+                                }}
+                                transition={{ 
+                                  duration: 2, 
+                                  repeat: Infinity,
+                                  ease: "easeInOut"
+                                }}
+                                style={{
+                                  background: design.accent === "gold" 
+                                    ? "radial-gradient(circle, rgba(255,215,0,0.3) 0%, transparent 70%)"
+                                    : "radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%)"
+                                }}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    )}
 
                     {isCurrent && isSelected && (
                       <motion.div 
@@ -255,7 +309,7 @@ export function CardBackCarousel({
                       </motion.div>
                     )}
 
-                    {isCurrent && (
+                    {isCurrent && design.type !== "rive" && (
                       <motion.div
                         className="absolute inset-0 pointer-events-none"
                         initial={{ opacity: 0 }}
@@ -296,37 +350,51 @@ export function CardBackCarousel({
         <p className="text-muted-foreground text-lg">{currentDesign.description}</p>
       </motion.div>
 
-      <div className="max-w-md mx-auto space-y-4 p-6 rounded-xl bg-muted/30 border">
-        <div className="flex items-center gap-3">
-          <Palette className="h-5 w-5 text-muted-foreground" />
-          <span className="font-medium">Customize Color</span>
-        </div>
-        <div className="relative">
-          <div 
-            className="absolute inset-0 rounded-full h-3 top-1/2 -translate-y-1/2"
-            style={{
-              background: "linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)"
-            }}
-          />
-          <Slider
-            value={[localHue]}
-            onValueChange={handleHueChange}
-            min={0}
-            max={360}
-            step={1}
-            className="relative z-10 [&_[role=slider]]:h-6 [&_[role=slider]]:w-6 [&_[role=slider]]:border-4 [&_[role=slider]]:border-white [&_[role=slider]]:shadow-lg"
-            data-testid="slider-hue"
+      {isRiveDesign ? (
+        <div className="max-w-md mx-auto">
+          <ColorControlsPanel
+            colorUp={localColors.colorUp}
+            colorDown={localColors.colorDown}
+            backgroundColor={localColors.backgroundColor}
+            onColorUpChange={(color) => handleColorChange("colorUp", color)}
+            onColorDownChange={(color) => handleColorChange("colorDown", color)}
+            onBackgroundColorChange={(color) => handleColorChange("backgroundColor", color)}
           />
         </div>
-        <p className="text-sm text-muted-foreground text-center">
-          Drag to shift the color palette
-        </p>
-      </div>
+      ) : (
+        <div className="max-w-md mx-auto space-y-4 p-6 rounded-xl bg-muted/30 border">
+          <div className="flex items-center gap-3">
+            <Palette className="h-5 w-5 text-muted-foreground" />
+            <span className="font-medium">Customize Color</span>
+          </div>
+          <div className="relative">
+            <div 
+              className="absolute inset-0 rounded-full h-3 top-1/2 -translate-y-1/2"
+              style={{
+                background: "linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)"
+              }}
+            />
+            <Slider
+              value={[localHue]}
+              onValueChange={handleHueChange}
+              min={0}
+              max={360}
+              step={1}
+              className="relative z-10 [&_[role=slider]]:h-6 [&_[role=slider]]:w-6 [&_[role=slider]]:border-4 [&_[role=slider]]:border-white [&_[role=slider]]:shadow-lg"
+              data-testid="slider-hue"
+            />
+          </div>
+          <p className="text-sm text-muted-foreground text-center">
+            Drag to shift the color palette
+          </p>
+        </div>
+      )}
 
       <div className="flex justify-center gap-2 md:gap-3">
         {CARD_BACK_DESIGNS.map((design, index) => {
           const baseDesign = baseDesigns[index];
-          const hueRotation = getHueRotation(baseDesign.baseHue);
+          const hueRotation = getHueRotation(baseDesign?.baseHue || 0);
+          const isRive = baseDesign?.type === "rive";
           
           return (
             <motion.button
@@ -343,17 +411,30 @@ export function CardBackCarousel({
               whileTap={{ scale: 0.95 }}
               data-testid={`thumbnail-${index}`}
             >
-              <div
-                className={cn(
-                  "absolute inset-0 bg-gradient-to-br",
-                  baseDesign.gradient
-                )}
-                style={{ filter: `hue-rotate(${hueRotation}deg)` }}
-              />
-              <div
-                className="absolute inset-0"
-                style={{ background: baseDesign.pattern }}
-              />
+              {isRive ? (
+                <div 
+                  className="absolute inset-0 flex items-center justify-center"
+                  style={{ 
+                    background: `linear-gradient(to bottom, ${localColors.colorUp}, ${localColors.colorDown})` 
+                  }}
+                >
+                  <Sparkles className="h-4 w-4 text-white/70" />
+                </div>
+              ) : (
+                <>
+                  <div
+                    className={cn(
+                      "absolute inset-0 bg-gradient-to-br",
+                      baseDesign?.gradient
+                    )}
+                    style={{ filter: `hue-rotate(${hueRotation}deg)` }}
+                  />
+                  <div
+                    className="absolute inset-0"
+                    style={{ background: baseDesign?.pattern }}
+                  />
+                </>
+              )}
               {selectedIndex === index && (
                 <div className="absolute inset-0 flex items-center justify-center bg-primary/30">
                   <Check className="h-4 w-4 text-primary-foreground" />
@@ -371,7 +452,13 @@ export function CardBackCarousel({
         >
           <Button
             size="lg"
-            onClick={() => onSelect(currentIndex, currentDesign.id, localHue)}
+            onClick={() => {
+              if (isRiveDesign) {
+                onSelect(currentIndex, currentDesign.id, 0, localColors);
+              } else {
+                onSelect(currentIndex, currentDesign.id, localHue);
+              }
+            }}
             className={cn(
               "gap-3 px-10 py-6 text-lg font-semibold",
               isSelected && "bg-primary/90"
