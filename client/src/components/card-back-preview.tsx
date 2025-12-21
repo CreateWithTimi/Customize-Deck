@@ -76,16 +76,9 @@ export function CardBackPreview({
           <div
             className="absolute inset-0"
             style={{
-              background: `linear-gradient(135deg, hsl(${hue}, 70%, 15%) 0%, hsl(${hue + 30}, 80%, 25%) 50%, hsl(${hue + 60}, 70%, 20%) 100%)`
+              background: `hsl(${hue}, 65%, 35%)`
             }}
           />
-          <div
-            className="absolute inset-0"
-            style={{
-              background: `radial-gradient(circle at 30% 20%, hsl(${hue + 20}, 90%, 50%, 0.3) 0%, transparent 50%), radial-gradient(circle at 70% 80%, hsl(${hue + 40}, 90%, 40%, 0.2) 0%, transparent 50%)`
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-white/5" />
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="h-10 w-10 md:h-12 md:w-12 rounded-full border-2 border-white/30 flex items-center justify-center">
               <div className="h-6 w-6 md:h-7 md:w-7 rounded-full border border-white/40" />

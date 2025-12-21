@@ -191,39 +191,14 @@ export function CardBackCarousel({
                       <div
                         className="absolute inset-0"
                         style={{
-                          background: `linear-gradient(135deg, hsl(${localHue}, 70%, 15%) 0%, hsl(${localHue + 30}, 80%, 25%) 50%, hsl(${localHue + 60}, 70%, 20%) 100%)`
+                          background: `hsl(${localHue}, 65%, 35%)`
                         }}
                       />
-                      <div
-                        className="absolute inset-0"
-                        style={{
-                          background: `radial-gradient(circle at 30% 20%, hsl(${localHue + 20}, 90%, 50%, 0.3) 0%, transparent 50%), radial-gradient(circle at 70% 80%, hsl(${localHue + 40}, 90%, 40%, 0.2) 0%, transparent 50%)`
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-white/5" />
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="relative">
                           <div className="h-20 w-20 md:h-24 md:w-24 rounded-full border-2 border-white/30 flex items-center justify-center">
                             <div className="h-12 w-12 md:h-14 md:w-14 rounded-full border border-white/40" />
                           </div>
-                          {isCurrent && (
-                            <motion.div
-                              className="absolute inset-0 rounded-full"
-                              initial={{ opacity: 0 }}
-                              animate={{ 
-                                opacity: [0.3, 0.6, 0.3],
-                                scale: [1, 1.1, 1]
-                              }}
-                              transition={{ 
-                                duration: 2, 
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                              }}
-                              style={{
-                                background: `radial-gradient(circle, hsl(${localHue + 20}, 90%, 60%, 0.4) 0%, transparent 70%)`
-                              }}
-                            />
-                          )}
                         </div>
                       </div>
                     </>
@@ -340,7 +315,7 @@ export function CardBackCarousel({
                 <div
                   className="absolute inset-0"
                   style={{
-                    background: `linear-gradient(135deg, hsl(${localHue}, 70%, 15%) 0%, hsl(${localHue + 30}, 80%, 25%) 50%, hsl(${localHue + 60}, 70%, 20%) 100%)`
+                    background: `hsl(${localHue}, 65%, 35%)`
                   }}
                 />
               ) : null}
