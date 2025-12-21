@@ -156,16 +156,18 @@ export const RIVE_ASSETS: Record<string, RiveAssetDefinition> = {
     artboard: 'originCardBack',
     stateMachine: 'originState',
     inputs: [],
-    description: 'Origin card back design with view model color binding',
+    description: 'Origin card back design',
     preload: false,
-    viewModel: {
-      name: 'originVM',
-      properties: [
-        { name: 'colorUp', type: 'color', description: 'Top gradient color' },
-        { name: 'colorDown', type: 'color', description: 'Bottom gradient color' },
-        { name: 'backgroundColor', type: 'color', description: 'Background color' },
-      ],
-    },
+  },
+
+  pulseCardBack: {
+    id: 'pulseCardBack',
+    src: '/pulse.riv',
+    artboard: 'pulseCardBack',
+    stateMachine: 'pulseState',
+    inputs: [],
+    description: 'Pulse card back design with animated effects',
+    preload: false,
   },
 };
 

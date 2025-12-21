@@ -57,6 +57,14 @@ const baseDesigns = [
     type: "rive" as const,
     riveAssetId: "originCardBack",
   },
+  {
+    gradient: "",
+    pattern: "",
+    accent: "cyan",
+    baseHue: 0,
+    type: "rive" as const,
+    riveAssetId: "pulseCardBack",
+  },
 ];
 
 export function CardBackCarousel({ 
@@ -174,9 +182,10 @@ export function CardBackCarousel({
           <AnimatePresence mode="popLayout">
             {cardIndices.map(({ offset, index }) => {
               const design = baseDesigns[index];
+              if (!design) return null;
               const cardStyle = getCardStyle(index);
               const isCurrent = offset === 0;
-              const hueRotation = getHueRotation(design.baseHue);
+              const hueRotation = getHueRotation(design.baseHue || 0);
 
               return (
                 <motion.div
@@ -350,11 +359,12 @@ export function CardBackCarousel({
         </div>
       )}
 
-      <div className="flex justify-center gap-2 md:gap-3">
+      <div className="flex justify-center gap-2 md:gap-3 flex-wrap">
         {CARD_BACK_DESIGNS.map((design, index) => {
           const baseDesign = baseDesigns[index];
-          const hueRotation = getHueRotation(baseDesign?.baseHue || 0);
-          const isRive = baseDesign?.type === "rive";
+          if (!baseDesign) return null;
+          const hueRotation = getHueRotation(baseDesign.baseHue || 0);
+          const isRive = baseDesign.type === "rive";
           
           return (
             <motion.button
