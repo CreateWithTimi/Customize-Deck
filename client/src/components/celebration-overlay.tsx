@@ -7,6 +7,19 @@ interface CelebrationOverlayProps {
   duration?: number;
 }
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  
+  return isMobile;
+}
+
 export function CelebrationOverlay({ 
   show, 
   onComplete, 
@@ -16,9 +29,13 @@ export function CelebrationOverlay({
   const [shouldRender, setShouldRender] = useState(false);
   const hasTriggeredRef = useRef(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isMobile = useIsMobile();
+
+  const assetId = isMobile ? "celebrationMobile" : "celebrationDesktop";
+  const triggerName = isMobile ? "celebrateMobile" : "celebrateDesktop";
 
   const riveAnimation = useRiveManaged(
-    shouldRender ? { assetId: "celebrationDesktop", autoplay: true, pauseWhenHidden: false } : null
+    shouldRender ? { assetId, autoplay: true, pauseWhenHidden: false } : null
   );
 
   const cleanup = useCallback(() => {
@@ -52,9 +69,9 @@ export function CelebrationOverlay({
 
   useEffect(() => {
     if (visible && riveAnimation.isReady) {
-      riveAnimation.fire("celebrateDesktop");
+      riveAnimation.fire(triggerName);
     }
-  }, [visible, riveAnimation.isReady, riveAnimation]);
+  }, [visible, riveAnimation.isReady, riveAnimation, triggerName]);
 
   if (!visible) return null;
 
