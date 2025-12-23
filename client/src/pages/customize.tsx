@@ -91,9 +91,9 @@ export default function Customize() {
           </p>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[1fr,380px]">
+        <div className="grid gap-8 lg:grid-cols-[1fr,380px] max-w-full">
           {/* Category Bins */}
-          <div className="space-y-4">
+          <div className="space-y-4 min-w-0">
             {CATEGORIES.map((category) => (
               <CategoryBin
                 key={category}

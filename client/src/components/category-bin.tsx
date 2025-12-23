@@ -101,14 +101,14 @@ export function CategoryBin({
   return (
     <Card
       className={cn(
-        "relative overflow-hidden transition-all duration-300",
+        "relative overflow-hidden transition-all duration-300 w-full max-w-full",
         colors.bg,
         colors.border,
         "border-2"
       )}
       data-testid={`category-bin-${category}`}
     >
-      <div className="p-4 md:p-6">
+      <div className="p-3 sm:p-4 md:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
             <div
@@ -125,13 +125,13 @@ export function CategoryBin({
             </div>
           </div>
 
-          <div className="flex items-center justify-center sm:justify-end gap-2 md:gap-3">
+          <div className="flex items-center justify-center sm:justify-end gap-2 shrink-0">
             <Button
               variant="outline"
               size="icon"
               onClick={handleDecrement}
               disabled={disabled || !canDecrement}
-              className="h-10 w-10 md:h-10 md:w-10 rounded-full"
+              className="rounded-full"
               data-testid={`button-decrement-${category}`}
             >
               <Minus className="h-4 w-4" />
@@ -139,7 +139,7 @@ export function CategoryBin({
 
             <div
               className={cn(
-                "flex h-10 w-16 md:h-12 md:w-16 items-center justify-center rounded-lg font-bold text-lg md:text-xl",
+                "flex h-9 w-12 sm:w-14 md:w-16 items-center justify-center rounded-lg font-bold text-base sm:text-lg md:text-xl",
                 colors.bg,
                 colors.text,
                 "border",
@@ -155,7 +155,7 @@ export function CategoryBin({
               size="icon"
               onClick={handleIncrement}
               disabled={disabled || !canIncrement}
-              className="h-10 w-10 md:h-10 md:w-10 rounded-full"
+              className="rounded-full"
               data-testid={`button-increment-${category}`}
             >
               <Plus className="h-4 w-4" />
