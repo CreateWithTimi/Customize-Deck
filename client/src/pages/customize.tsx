@@ -49,7 +49,7 @@ export default function Customize() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <CelebrationOverlay 
         show={showCelebration} 
         onComplete={() => setShowCelebration(false)}
@@ -75,7 +75,7 @@ export default function Customize() {
       </div>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8 md:py-12">
+      <main className="container mx-auto px-4 py-8 md:py-12 max-w-full">
         {/* Back link */}
         <Link href="/">
           <Button variant="ghost" className="gap-2 mb-6" data-testid="button-back-home">
