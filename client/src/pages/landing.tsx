@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -17,9 +17,25 @@ import {
   Clock,
 } from "lucide-react";
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  
+  return isMobile;
+}
+
 function HeroCardDeck() {
+  const isMobile = useIsMobile();
+  const assetId = isMobile ? 'heroMobile' : 'heroDesktop';
+
   const { containerRef, setBoolean, isReady } = useRiveManaged({
-    assetId: 'hero',
+    assetId,
     autoplay: true,
     pauseWhenHidden: true,
   });

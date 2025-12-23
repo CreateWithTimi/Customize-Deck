@@ -44,16 +44,28 @@ export interface RiveAssetDefinition {
 }
 
 export const RIVE_ASSETS: Record<string, RiveAssetDefinition> = {
-  hero: {
-    id: 'hero',
-    src: '/ui.riv',
-    artboard: 'Hero',
-    stateMachine: 'HeroState',
+  heroDesktop: {
+    id: 'heroDesktop',
+    src: '/hero-desktop.riv',
+    artboard: 'heroDesktop',
+    stateMachine: 'heroDesktopState',
     inputs: [
       { name: 'isHover', type: 'boolean', description: 'Hover state for hero animation' },
     ],
-    description: 'Main hero animation on landing page',
+    description: 'Main hero animation on landing page (desktop)',
     preload: true,
+  },
+
+  heroMobile: {
+    id: 'heroMobile',
+    src: '/hero-mobile.riv',
+    artboard: 'heroMobile',
+    stateMachine: 'heroMobileState',
+    inputs: [
+      { name: 'isHover', type: 'boolean', description: 'Hover state for hero animation' },
+    ],
+    description: 'Main hero animation on landing page (mobile)',
+    preload: false,
   },
 
   romanticIcon: {
