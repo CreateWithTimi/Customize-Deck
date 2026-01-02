@@ -40,6 +40,22 @@ const baseDesigns = [
     type: "rive" as const,
     riveAssetId: "afterHoursCardBack",
   },
+  {
+    gradient: "",
+    pattern: "",
+    accent: "gold",
+    baseHue: 0,
+    type: "rive" as const,
+    riveAssetId: "signatureCardBack",
+  },
+  {
+    gradient: "",
+    pattern: "",
+    accent: "pink",
+    baseHue: 0,
+    type: "rive" as const,
+    riveAssetId: "sparkCardBack",
+  },
 ];
 
 const sizeClasses = {
