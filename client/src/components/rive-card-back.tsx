@@ -113,7 +113,7 @@ export function RiveCardBack({
     <div 
       ref={containerRef}
       className={cn(
-        "relative overflow-hidden w-full h-full",
+        "relative overflow-hidden w-full h-full bg-gradient-to-b from-purple-600 to-indigo-800",
         className
       )}
       data-testid={`rive-card-back-${assetId}`}
