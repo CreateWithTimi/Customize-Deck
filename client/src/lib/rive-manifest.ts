@@ -191,6 +191,26 @@ export const RIVE_ASSETS: Record<string, RiveAssetDefinition> = {
     description: 'After Hours card back design',
     preload: false,
   },
+
+  signatureCardBack: {
+    id: 'signatureCardBack',
+    src: '/signature.riv',
+    artboard: 'signatureCardBack',
+    stateMachine: 'signatureState',
+    inputs: [],
+    description: 'Signature card back design',
+    preload: false,
+  },
+
+  sparkCardBack: {
+    id: 'sparkCardBack',
+    src: '/spark.riv',
+    artboard: 'sparkCardBack',
+    stateMachine: 'sparkState',
+    inputs: [],
+    description: 'Spark card back design',
+    preload: false,
+  },
 };
 
 /**
