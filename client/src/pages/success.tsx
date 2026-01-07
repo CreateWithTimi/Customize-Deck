@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { getDeckState, clearDeckState } from "@/lib/deck-state";
-import { CARD_BACK_DESIGNS } from "@shared/schema";
+import { CARD_BACK_DESIGNS, formatPrice, DECK_PRICE } from "@shared/schema";
 import { StepIndicator } from "@/components/step-indicator";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { CelebrationOverlay } from "@/components/celebration-overlay";
@@ -99,7 +99,7 @@ export default function Success() {
                 <p className="text-sm text-muted-foreground">
                   52 cards • {selectedDesign?.name}
                 </p>
-                <p className="text-lg font-bold mt-2">$29.99</p>
+                <p className="text-lg font-bold mt-2">{formatPrice(DECK_PRICE)}</p>
               </div>
             </div>
 

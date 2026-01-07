@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, jsonb, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -86,28 +86,46 @@ export const deckConfigSchema = z.object({
 
 export type DeckConfig = z.infer<typeof deckConfigSchema>;
 
-// Pricing
-export const DECK_PRICE = 29.99;
+// Pricing (in Nigerian Naira)
+export const DECK_PRICE = 20000;
+export const CURRENCY_SYMBOL = "₦";
+export const CURRENCY_CODE = "NGN";
 export const MAX_QUANTITY = 10;
+
+// Format price with currency
+export function formatPrice(amount: number): string {
+  return `${CURRENCY_SYMBOL}${amount.toLocaleString()}`;
+}
+
+// Order status options
+export const ORDER_STATUSES = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"] as const;
+export type OrderStatus = typeof ORDER_STATUSES[number];
 
 // Order schema
 export const orders = pgTable("orders", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   deckConfig: jsonb("deck_config").notNull(),
   quantity: integer("quantity").notNull().default(1),
+  totalAmount: integer("total_amount").notNull(),
   shippingName: text("shipping_name").notNull(),
   shippingEmail: text("shipping_email").notNull(),
+  shippingPhone: text("shipping_phone"),
   shippingAddress: text("shipping_address").notNull(),
   shippingCity: text("shipping_city").notNull(),
   shippingState: text("shipping_state").notNull(),
   shippingZip: text("shipping_zip").notNull(),
   shippingCountry: text("shipping_country").notNull(),
   status: text("status").notNull().default("pending"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export const insertOrderSchema = createInsertSchema(orders).omit({
   id: true,
   status: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
 export type InsertOrder = z.infer<typeof insertOrderSchema>;

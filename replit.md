@@ -62,9 +62,11 @@ Preferred communication style: Simple, everyday language.
 5. **Success**: Order confirmation with deck state cleanup
 
 ### Pricing & Quantity
-- **Base Price**: $29.99 per deck (DECK_PRICE constant in schema)
+- **Currency**: Nigerian Naira (₦ / NGN)
+- **Base Price**: ₦20,000 per deck (DECK_PRICE constant in schema)
 - **Quantity Range**: 1-10 decks per order (MAX_QUANTITY constant)
 - **Shipping**: Free for all orders
+- **Price Formatting**: Use `formatPrice()` helper from schema for consistent currency display
 
 ## External Dependencies
 

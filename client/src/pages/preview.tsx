@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, Link } from "wouter";
 import { getDeckState, validations } from "@/lib/deck-state";
-import { CATEGORIES, CATEGORY_META, CARD_BACK_DESIGNS, REQUIRED_TOTAL } from "@shared/schema";
+import { CATEGORIES, CATEGORY_META, CARD_BACK_DESIGNS, REQUIRED_TOTAL, formatPrice, DECK_PRICE } from "@shared/schema";
 import { StepIndicator } from "@/components/step-indicator";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { CardBackPreview } from "@/components/card-back-preview";
@@ -175,7 +175,7 @@ export default function Preview() {
               </p>
             </div>
             <div className="text-right">
-              <p className="text-2xl font-bold">$29.99</p>
+              <p className="text-2xl font-bold">{formatPrice(DECK_PRICE)}</p>
               <p className="text-sm text-muted-foreground">Free shipping</p>
             </div>
           </div>

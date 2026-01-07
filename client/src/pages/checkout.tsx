@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getDeckState, validations } from "@/lib/deck-state";
-import { shippingFormSchema, ShippingForm, CARD_BACK_DESIGNS, CATEGORIES, CATEGORY_META, DECK_PRICE, MAX_QUANTITY } from "@shared/schema";
+import { shippingFormSchema, ShippingForm, CARD_BACK_DESIGNS, CATEGORIES, CATEGORY_META, DECK_PRICE, MAX_QUANTITY, formatPrice } from "@shared/schema";
 import { StepIndicator } from "@/components/step-indicator";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -59,7 +59,7 @@ export default function Checkout() {
       city: "",
       state: "",
       zip: "",
-      country: "United States",
+      country: "Nigeria",
     },
   });
 
@@ -68,6 +68,7 @@ export default function Checkout() {
       const response = await apiRequest("POST", "/api/orders", {
         deckConfig: config,
         quantity,
+        totalAmount: total,
         shippingName: data.name,
         shippingEmail: data.email,
         shippingAddress: data.address,
@@ -281,6 +282,7 @@ export default function Checkout() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
+                            <SelectItem value="Nigeria">Nigeria</SelectItem>
                             <SelectItem value="United States">United States</SelectItem>
                             <SelectItem value="Canada">Canada</SelectItem>
                             <SelectItem value="United Kingdom">United Kingdom</SelectItem>
@@ -318,7 +320,7 @@ export default function Checkout() {
                   ) : (
                     <>
                       <Lock className="h-4 w-4" />
-                      Place Order - ${total.toFixed(2)}
+                      Place Order - {formatPrice(total)}
                     </>
                   )}
                 </Button>
@@ -404,9 +406,9 @@ export default function Checkout() {
               <div className="border-t mt-4 pt-4 space-y-2">
                 <div className="flex justify-between gap-2">
                   <span className="text-muted-foreground">
-                    {quantity > 1 ? `${quantity} decks × $${DECK_PRICE.toFixed(2)}` : "Subtotal"}
+                    {quantity > 1 ? `${quantity} decks × ${formatPrice(DECK_PRICE)}` : "Subtotal"}
                   </span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between gap-2">
                   <span className="text-muted-foreground">Shipping</span>
@@ -414,7 +416,7 @@ export default function Checkout() {
                 </div>
                 <div className="flex justify-between gap-2 font-semibold text-lg pt-2 border-t">
                   <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>{formatPrice(total)}</span>
                 </div>
               </div>
             </Card>
