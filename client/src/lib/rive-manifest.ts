@@ -47,7 +47,7 @@ export const RIVE_ASSETS: Record<string, RiveAssetDefinition> = {
   hero: {
     id: 'hero',
     src: '/hero.riv',
-    artboard: 'hero',
+    artboard: 'heroAnim',
     stateMachine: 'heroState',
     inputs: [
       { name: 'isHover', type: 'boolean', description: 'Hover state for hero animation' },
