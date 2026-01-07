@@ -117,8 +117,8 @@ export const orders = pgTable("orders", {
   shippingCountry: text("shipping_country").notNull(),
   status: text("status").notNull().default("pending"),
   notes: text("notes"),
-  stripeSessionId: text("stripe_session_id"),
-  stripePaymentIntentId: text("stripe_payment_intent_id"),
+  paymentReference: text("payment_reference"),
+  paymentProvider: text("payment_provider"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

@@ -1,29 +1,32 @@
 import type { Express } from "express";
 import type { Server } from "http";
 import { storage } from "./storage";
-import { insertOrderSchema, deckConfigSchema, REQUIRED_TOTAL, MAX_QUANTITY, DECK_PRICE, CURRENCY_CODE } from "@shared/schema";
+import { deckConfigSchema, REQUIRED_TOTAL, MAX_QUANTITY, DECK_PRICE, CURRENCY_CODE } from "@shared/schema";
 import { z } from "zod";
-import { getUncachableStripeClient, getStripePublishableKey } from "./stripeClient";
+import { initializeTransaction, verifyTransaction, generateReference, isPaystackConfigured } from "./paystackClient";
+import { sendOrderEmails } from "./emailService";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
   
-  // Get Stripe publishable key for frontend
-  app.get("/api/stripe/config", async (_req, res) => {
-    try {
-      const publishableKey = await getStripePublishableKey();
-      res.json({ publishableKey });
-    } catch (error) {
-      console.error("Failed to get Stripe config:", error);
-      res.status(500).json({ error: "Failed to get Stripe configuration" });
-    }
+  // Check if Paystack is configured
+  app.get("/api/payment/config", async (_req, res) => {
+    res.json({ 
+      configured: isPaystackConfigured(),
+      currency: CURRENCY_CODE,
+      deckPrice: DECK_PRICE,
+    });
   });
 
-  // Create Stripe checkout session for one-time payment
-  app.post("/api/create-checkout-session", async (req, res) => {
+  // Create Paystack payment session
+  app.post("/api/create-payment", async (req, res) => {
     try {
+      if (!isPaystackConfigured()) {
+        return res.status(503).json({ error: "Payment system not configured" });
+      }
+
       const sessionSchema = z.object({
         deckConfig: deckConfigSchema,
         quantity: z.number().int().min(1).max(MAX_QUANTITY),
@@ -52,27 +55,17 @@ export async function registerRoutes(
       }
 
       const totalAmount = DECK_PRICE * validated.quantity;
-      const stripe = await getUncachableStripeClient();
+      const reference = generateReference();
+      const callbackUrl = `${req.protocol}://${req.get('host')}/success?reference=${reference}`;
 
-      // Create checkout session with one-time payment
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        mode: 'payment',
-        line_items: [{
-          price_data: {
-            currency: CURRENCY_CODE.toLowerCase(),
-            product_data: {
-              name: 'Custom Conversation Deck',
-              description: `${REQUIRED_TOTAL} cards with ${validated.deckConfig.cardBackDesign} design`,
-            },
-            unit_amount: DECK_PRICE * 100, // Stripe uses smallest currency unit (kobo for NGN)
-          },
-          quantity: validated.quantity,
-        }],
-        customer_email: validated.shippingEmail,
+      const paystackResponse = await initializeTransaction({
+        email: validated.shippingEmail,
+        amount: totalAmount * 100, // Paystack uses kobo (smallest unit)
+        reference,
+        callback_url: callbackUrl,
         metadata: {
-          deckConfig: JSON.stringify(validated.deckConfig),
-          quantity: validated.quantity.toString(),
+          deckConfig: validated.deckConfig,
+          quantity: validated.quantity,
           shippingName: validated.shippingName,
           shippingEmail: validated.shippingEmail,
           shippingPhone: validated.shippingPhone || '',
@@ -82,11 +75,12 @@ export async function registerRoutes(
           shippingZip: validated.shippingZip,
           shippingCountry: validated.shippingCountry,
         },
-        success_url: `${req.protocol}://${req.get('host')}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${req.protocol}://${req.get('host')}/checkout`,
       });
 
-      return res.json({ url: session.url, sessionId: session.id });
+      return res.json({ 
+        url: paystackResponse.data.authorization_url, 
+        reference: paystackResponse.data.reference,
+      });
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ 
@@ -94,60 +88,62 @@ export async function registerRoutes(
           details: error.errors 
         });
       }
-      console.error("Checkout session error:", error);
-      return res.status(500).json({ error: "Failed to create checkout session" });
+      console.error("Payment initialization error:", error);
+      return res.status(500).json({ error: "Failed to initialize payment" });
     }
   });
 
-  // Handle successful payment - create order from session
-  app.post("/api/orders/from-session", async (req, res) => {
+  // Verify payment and create order
+  app.post("/api/verify-payment", async (req, res) => {
     try {
-      const { sessionId } = req.body;
+      const { reference } = req.body;
       
-      if (!sessionId) {
-        return res.status(400).json({ error: "Session ID required" });
+      if (!reference) {
+        return res.status(400).json({ error: "Payment reference required" });
       }
 
-      const stripe = await getUncachableStripeClient();
-      const session = await stripe.checkout.sessions.retrieve(sessionId);
-
-      if (session.payment_status !== 'paid') {
-        return res.status(400).json({ error: "Payment not completed" });
-      }
-
-      // Check if order already exists for this session
-      const existingOrder = await storage.getOrderBySessionId(sessionId);
+      // Check if order already exists for this reference
+      const existingOrder = await storage.getOrderByReference(reference);
       if (existingOrder) {
         return res.json(existingOrder);
       }
 
-      const metadata = session.metadata!;
-      const deckConfig = JSON.parse(metadata.deckConfig);
+      const verification = await verifyTransaction(reference);
+
+      if (verification.data.status !== 'success') {
+        return res.status(400).json({ error: "Payment not successful" });
+      }
+
+      const metadata = verification.data.metadata;
+      const deckConfig = metadata.deckConfig;
 
       const order = await storage.createOrder({
         deckConfig,
-        quantity: parseInt(metadata.quantity),
-        totalAmount: session.amount_total! / 100,
+        quantity: parseInt(metadata.quantity) || 1,
+        totalAmount: verification.data.amount / 100, // Convert from kobo to naira
         shippingName: metadata.shippingName,
-        shippingEmail: metadata.shippingEmail,
+        shippingEmail: metadata.shippingEmail || verification.data.customer.email,
         shippingPhone: metadata.shippingPhone || null,
         shippingAddress: metadata.shippingAddress,
         shippingCity: metadata.shippingCity,
         shippingState: metadata.shippingState,
         shippingZip: metadata.shippingZip,
         shippingCountry: metadata.shippingCountry,
-        stripeSessionId: sessionId,
-        stripePaymentIntentId: session.payment_intent as string,
+        paymentReference: reference,
+        paymentProvider: 'paystack',
       });
+
+      // Send confirmation emails (non-blocking)
+      sendOrderEmails(order).catch(err => console.error('Email sending failed:', err));
 
       return res.status(201).json(order);
     } catch (error) {
-      console.error("Order from session error:", error);
-      return res.status(500).json({ error: "Failed to create order" });
+      console.error("Payment verification error:", error);
+      return res.status(500).json({ error: "Failed to verify payment" });
     }
   });
 
-  // Create order endpoint (for testing without Stripe)
+  // Create order endpoint (for testing without payment)
   app.post("/api/orders", async (req, res) => {
     try {
       const orderSchema = z.object({

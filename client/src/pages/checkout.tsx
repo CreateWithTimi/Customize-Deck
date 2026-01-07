@@ -63,13 +63,14 @@ export default function Checkout() {
     },
   });
 
-  const createCheckoutSession = useMutation({
+  const createPayment = useMutation({
     mutationFn: async (data: ShippingForm) => {
-      const response = await apiRequest("POST", "/api/create-checkout-session", {
+      const response = await apiRequest("POST", "/api/create-payment", {
         deckConfig: config,
         quantity,
         shippingName: data.name,
         shippingEmail: data.email,
+        shippingPhone: data.phone || "",
         shippingAddress: data.address,
         shippingCity: data.city,
         shippingState: data.state,
@@ -103,7 +104,7 @@ export default function Checkout() {
   }, [navigate]);
 
   const onSubmit = (data: ShippingForm) => {
-    createCheckoutSession.mutate(data);
+    createPayment.mutate(data);
   };
 
   const selectedDesign = CARD_BACK_DESIGNS.find(
@@ -304,7 +305,7 @@ export default function Checkout() {
                   </h3>
                   <div className="p-4 rounded-lg bg-muted/50 border text-center">
                     <p className="text-sm text-muted-foreground">
-                      You'll be redirected to Stripe to complete your payment securely.
+                      You'll be redirected to Paystack to complete your payment securely.
                     </p>
                   </div>
                 </div>
@@ -313,10 +314,10 @@ export default function Checkout() {
                   type="submit"
                   size="lg"
                   className="w-full gap-2"
-                  disabled={createCheckoutSession.isPending}
+                  disabled={createPayment.isPending}
                   data-testid="button-place-order"
                 >
-                  {createCheckoutSession.isPending ? (
+                  {createPayment.isPending ? (
                     "Redirecting to payment..."
                   ) : (
                     <>

@@ -15,6 +15,7 @@ import {
   Truck,
   Sparkles,
   Loader2,
+  XCircle,
 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -23,10 +24,10 @@ import { CardBackPreview } from "@/components/card-back-preview";
 
 export default function Success() {
   const searchString = useSearch();
-  const sessionId = new URLSearchParams(searchString).get("session_id");
+  const reference = new URLSearchParams(searchString).get("reference");
   
   const [config] = useState(getDeckState);
-  const [showCelebration, setShowCelebration] = useState(true);
+  const [showCelebration, setShowCelebration] = useState(false);
   const [order, setOrder] = useState<Order | null>(null);
   
   const selectedDesign = CARD_BACK_DESIGNS.find(
@@ -34,30 +35,72 @@ export default function Success() {
   );
   const designIndex = config.cardBackIndex ?? 0;
 
-  const createOrderFromSession = useMutation({
-    mutationFn: async (sessionId: string) => {
-      const response = await apiRequest("POST", "/api/orders/from-session", { sessionId });
+  const verifyPayment = useMutation({
+    mutationFn: async (ref: string) => {
+      const response = await apiRequest("POST", "/api/verify-payment", { reference: ref });
       return response.json();
     },
     onSuccess: (data: Order) => {
       setOrder(data);
+      setShowCelebration(true);
     },
   });
 
   useEffect(() => {
-    if (sessionId && !order && !createOrderFromSession.isPending) {
-      createOrderFromSession.mutate(sessionId);
+    if (reference && !order && !verifyPayment.isPending && !verifyPayment.isError) {
+      verifyPayment.mutate(reference);
     }
-  }, [sessionId]);
+  }, [reference]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      clearDeckState();
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, []);
+    if (order) {
+      const timer = setTimeout(() => {
+        clearDeckState();
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [order]);
 
   const displayPrice = order ? formatPrice(order.totalAmount) : formatPrice(DECK_PRICE);
+
+  if (!reference) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="p-8 text-center max-w-md">
+          <XCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
+          <h1 className="text-xl font-bold mb-2">Invalid Payment Reference</h1>
+          <p className="text-muted-foreground mb-6">
+            We couldn't find your payment details. Please try again or contact support.
+          </p>
+          <Link href="/checkout">
+            <Button data-testid="button-retry-checkout">Return to Checkout</Button>
+          </Link>
+        </Card>
+      </div>
+    );
+  }
+
+  if (verifyPayment.isError) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="p-8 text-center max-w-md">
+          <XCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
+          <h1 className="text-xl font-bold mb-2">Payment Verification Failed</h1>
+          <p className="text-muted-foreground mb-6">
+            We couldn't verify your payment. If you were charged, please contact support with reference: {reference}
+          </p>
+          <div className="flex flex-col gap-3">
+            <Button onClick={() => verifyPayment.mutate(reference)} data-testid="button-retry-verify">
+              Try Again
+            </Button>
+            <Link href="/">
+              <Button variant="outline" data-testid="button-home">Return Home</Button>
+            </Link>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -91,7 +134,7 @@ export default function Success() {
           {/* Success Icon */}
           <div className="mb-8 relative">
             <div className="mx-auto h-24 w-24 md:h-32 md:w-32 rounded-full bg-primary/10 flex items-center justify-center">
-              {createOrderFromSession.isPending ? (
+              {verifyPayment.isPending ? (
                 <Loader2 className="h-12 w-12 md:h-16 md:w-16 text-primary animate-spin" />
               ) : (
                 <CheckCircle2 className="h-12 w-12 md:h-16 md:w-16 text-primary" />
@@ -103,10 +146,10 @@ export default function Success() {
 
           {/* Success Message */}
           <h1 className="text-3xl md:text-4xl font-bold mb-4">
-            {createOrderFromSession.isPending ? "Processing Your Order..." : "Your Deck is On Its Way!"}
+            {verifyPayment.isPending ? "Verifying Your Payment..." : "Your Deck is On Its Way!"}
           </h1>
           <p className="text-lg text-muted-foreground mb-8">
-            {createOrderFromSession.isPending 
+            {verifyPayment.isPending 
               ? "Please wait while we confirm your payment..."
               : "Thank you for your order. Get ready for deeper conversations!"}
           </p>
