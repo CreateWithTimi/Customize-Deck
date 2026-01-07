@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link } from "wouter";
+import { Link, useSearch } from "wouter";
 import { getDeckState, clearDeckState } from "@/lib/deck-state";
-import { CARD_BACK_DESIGNS, formatPrice, DECK_PRICE } from "@shared/schema";
+import { CARD_BACK_DESIGNS, formatPrice, DECK_PRICE, type Order } from "@shared/schema";
 import { StepIndicator } from "@/components/step-indicator";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { CelebrationOverlay } from "@/components/celebration-overlay";
@@ -14,26 +14,50 @@ import {
   Mail,
   Truck,
   Sparkles,
+  Loader2,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 import { CardBackPreview } from "@/components/card-back-preview";
 
 export default function Success() {
+  const searchString = useSearch();
+  const sessionId = new URLSearchParams(searchString).get("session_id");
+  
   const [config] = useState(getDeckState);
   const [showCelebration, setShowCelebration] = useState(true);
+  const [order, setOrder] = useState<Order | null>(null);
+  
   const selectedDesign = CARD_BACK_DESIGNS.find(
     (d) => d.id === config.cardBackDesign
   );
   const designIndex = config.cardBackIndex ?? 0;
 
+  const createOrderFromSession = useMutation({
+    mutationFn: async (sessionId: string) => {
+      const response = await apiRequest("POST", "/api/orders/from-session", { sessionId });
+      return response.json();
+    },
+    onSuccess: (data: Order) => {
+      setOrder(data);
+    },
+  });
+
   useEffect(() => {
-    // Clear deck state after successful order
+    if (sessionId && !order && !createOrderFromSession.isPending) {
+      createOrderFromSession.mutate(sessionId);
+    }
+  }, [sessionId]);
+
+  useEffect(() => {
     const timer = setTimeout(() => {
       clearDeckState();
     }, 5000);
     return () => clearTimeout(timer);
   }, []);
+
+  const displayPrice = order ? formatPrice(order.totalAmount) : formatPrice(DECK_PRICE);
 
   return (
     <div className="min-h-screen bg-background">
@@ -67,7 +91,11 @@ export default function Success() {
           {/* Success Icon */}
           <div className="mb-8 relative">
             <div className="mx-auto h-24 w-24 md:h-32 md:w-32 rounded-full bg-primary/10 flex items-center justify-center">
-              <CheckCircle2 className="h-12 w-12 md:h-16 md:w-16 text-primary" />
+              {createOrderFromSession.isPending ? (
+                <Loader2 className="h-12 w-12 md:h-16 md:w-16 text-primary animate-spin" />
+              ) : (
+                <CheckCircle2 className="h-12 w-12 md:h-16 md:w-16 text-primary" />
+              )}
             </div>
             <Sparkles className="absolute top-0 right-1/3 h-6 w-6 text-yellow-500 animate-pulse" />
             <Sparkles className="absolute bottom-4 left-1/3 h-4 w-4 text-yellow-500 animate-pulse delay-300" />
@@ -75,16 +103,18 @@ export default function Success() {
 
           {/* Success Message */}
           <h1 className="text-3xl md:text-4xl font-bold mb-4">
-            Your Deck is On Its Way!
+            {createOrderFromSession.isPending ? "Processing Your Order..." : "Your Deck is On Its Way!"}
           </h1>
           <p className="text-lg text-muted-foreground mb-8">
-            Thank you for your order. Get ready for deeper conversations!
+            {createOrderFromSession.isPending 
+              ? "Please wait while we confirm your payment..."
+              : "Thank you for your order. Get ready for deeper conversations!"}
           </p>
 
           {/* Order Details Card */}
           <Card className="p-6 md:p-8 mb-8 text-left">
             <h2 className="text-lg font-semibold mb-6 text-center">
-              Order Confirmed
+              {order ? `Order #${order.id.slice(0, 8).toUpperCase()}` : "Order Confirmed"}
             </h2>
 
             <div className="flex items-center justify-center gap-6 mb-6">
@@ -97,9 +127,9 @@ export default function Success() {
               <div>
                 <p className="font-semibold">Custom Conversation Deck</p>
                 <p className="text-sm text-muted-foreground">
-                  52 cards • {selectedDesign?.name}
+                  52 cards • {selectedDesign?.name || "Custom Design"}
                 </p>
-                <p className="text-lg font-bold mt-2">{formatPrice(DECK_PRICE)}</p>
+                <p className="text-lg font-bold mt-2">{displayPrice}</p>
               </div>
             </div>
 

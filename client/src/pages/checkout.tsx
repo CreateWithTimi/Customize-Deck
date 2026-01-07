@@ -63,12 +63,11 @@ export default function Checkout() {
     },
   });
 
-  const submitOrder = useMutation({
+  const createCheckoutSession = useMutation({
     mutationFn: async (data: ShippingForm) => {
-      const response = await apiRequest("POST", "/api/orders", {
+      const response = await apiRequest("POST", "/api/create-checkout-session", {
         deckConfig: config,
         quantity,
-        totalAmount: total,
         shippingName: data.name,
         shippingEmail: data.email,
         shippingAddress: data.address,
@@ -79,12 +78,14 @@ export default function Checkout() {
       });
       return response.json();
     },
-    onSuccess: () => {
-      navigate("/success");
+    onSuccess: (data: { url: string }) => {
+      if (data.url) {
+        window.location.href = data.url;
+      }
     },
     onError: (error: Error) => {
       toast({
-        title: "Order failed",
+        title: "Checkout failed",
         description: error.message || "Something went wrong. Please try again.",
         variant: "destructive",
       });
@@ -102,7 +103,7 @@ export default function Checkout() {
   }, [navigate]);
 
   const onSubmit = (data: ShippingForm) => {
-    submitOrder.mutate(data);
+    createCheckoutSession.mutate(data);
   };
 
   const selectedDesign = CARD_BACK_DESIGNS.find(
@@ -295,15 +296,15 @@ export default function Checkout() {
                   />
                 </div>
 
-                {/* Mock Payment Section */}
+                {/* Payment Section */}
                 <div className="pt-6 border-t">
                   <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                     <CreditCard className="h-5 w-5" />
                     Payment
                   </h3>
-                  <div className="p-4 rounded-lg bg-muted/50 border border-dashed text-center">
+                  <div className="p-4 rounded-lg bg-muted/50 border text-center">
                     <p className="text-sm text-muted-foreground">
-                      Payment integration coming soon. Click below to complete your order.
+                      You'll be redirected to Stripe to complete your payment securely.
                     </p>
                   </div>
                 </div>
@@ -312,15 +313,15 @@ export default function Checkout() {
                   type="submit"
                   size="lg"
                   className="w-full gap-2"
-                  disabled={submitOrder.isPending}
+                  disabled={createCheckoutSession.isPending}
                   data-testid="button-place-order"
                 >
-                  {submitOrder.isPending ? (
-                    "Processing..."
+                  {createCheckoutSession.isPending ? (
+                    "Redirecting to payment..."
                   ) : (
                     <>
                       <Lock className="h-4 w-4" />
-                      Place Order - {formatPrice(total)}
+                      Pay {formatPrice(total)}
                     </>
                   )}
                 </Button>

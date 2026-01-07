@@ -10,6 +10,7 @@ import CardBack from "@/pages/card-back";
 import Preview from "@/pages/preview";
 import Checkout from "@/pages/checkout";
 import Success from "@/pages/success";
+import Admin from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -21,6 +22,7 @@ function Router() {
       <Route path="/preview" component={Preview} />
       <Route path="/checkout" component={Checkout} />
       <Route path="/success" component={Success} />
+      <Route path="/admin" component={Admin} />
       <Route component={NotFound} />
     </Switch>
   );
