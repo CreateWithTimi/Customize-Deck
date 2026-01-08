@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { useLocation, Link } from "wouter";
 import { getDeckState, validations, generateDeckSummary, generateWhatsAppMessage, generateWhatsAppUrl } from "@/lib/deck-state";
-import { CATEGORIES, CATEGORY_META, CARD_BACK_DESIGNS, REQUIRED_TOTAL, formatPrice, DECK_PRICE } from "@shared/schema";
+import { CATEGORIES, CATEGORY_META, CARD_BACK_DESIGNS, REQUIRED_TOTAL, formatPrice, DECK_PRICE, MAX_QUANTITY } from "@shared/schema";
 import { StepIndicator } from "@/components/step-indicator";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { CardBackPreview } from "@/components/card-back-preview";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Heart, ArrowLeft, Edit2, Check, MessageCircle, AlertCircle } from "lucide-react";
+import { Heart, ArrowLeft, Edit2, Check, MessageCircle, AlertCircle, Plus, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const colorMap: Record<string, string> = {
@@ -24,8 +24,11 @@ const WHATSAPP_NUMBER = "08165429119";
 export default function Preview() {
   const [, navigate] = useLocation();
   const [config, setConfig] = useState(getDeckState);
+  const [quantity, setQuantity] = useState(1);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [isOrdering, setIsOrdering] = useState(false);
+
+  const totalPrice = DECK_PRICE * quantity;
 
   useEffect(() => {
     const currentConfig = getDeckState();
@@ -57,8 +60,8 @@ export default function Preview() {
     setValidationErrors([]);
     setIsOrdering(true);
 
-    // Generate deck summary
-    const summary = generateDeckSummary(config);
+    // Generate deck summary with quantity
+    const summary = generateDeckSummary(config, quantity);
     if (!summary) {
       setValidationErrors(["Unable to generate order summary. Please try again."]);
       setIsOrdering(false);
@@ -204,16 +207,54 @@ export default function Preview() {
 
         {/* Order Summary */}
         <Card className="max-w-5xl mx-auto mt-8 p-6 md:p-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div>
-              <h3 className="font-semibold text-lg">Custom Conversation Deck</h3>
-              <p className="text-sm text-muted-foreground">
-                52 premium cards with {selectedDesign?.name} design
-              </p>
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div>
+                <h3 className="font-semibold text-lg">Custom Conversation Deck</h3>
+                <p className="text-sm text-muted-foreground">
+                  52 premium cards with {selectedDesign?.name} design
+                </p>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {formatPrice(DECK_PRICE)} per deck
+              </div>
             </div>
-            <div className="text-right">
-              <p className="text-2xl font-bold">{formatPrice(DECK_PRICE)}</p>
-              <p className="text-sm text-muted-foreground">Free shipping</p>
+
+            {/* Quantity Selector */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t">
+              <div className="flex items-center gap-4">
+                <span className="font-medium">Quantity</span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    disabled={quantity <= 1}
+                    data-testid="button-quantity-minus"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="w-12 text-center font-semibold text-lg" data-testid="text-quantity">
+                    {quantity}
+                  </span>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() => setQuantity(Math.min(MAX_QUANTITY, quantity + 1))}
+                    disabled={quantity >= MAX_QUANTITY}
+                    data-testid="button-quantity-plus"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                <span className="text-sm text-muted-foreground">
+                  (max {MAX_QUANTITY})
+                </span>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold">{formatPrice(totalPrice)}</p>
+                <p className="text-sm text-muted-foreground">Free shipping</p>
+              </div>
             </div>
           </div>
         </Card>

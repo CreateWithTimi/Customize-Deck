@@ -171,13 +171,16 @@ export interface DeckSummary {
   totalCards: number;
   cardBackDesign: string;
   cardBackHue: number | null;
-  price: number;
-  formattedPrice: string;
+  quantity: number;
+  pricePerDeck: number;
+  totalPrice: number;
+  formattedPricePerDeck: string;
+  formattedTotalPrice: string;
   estimatedDelivery: string;
   createdAt: string;
 }
 
-export function generateDeckSummary(config: DeckConfig): DeckSummary | null {
+export function generateDeckSummary(config: DeckConfig, quantity: number = 1): DeckSummary | null {
   // Validate deck is complete
   if (validations.getValidationErrors(config).length > 0) {
     return null;
@@ -207,14 +210,19 @@ export function generateDeckSummary(config: DeckConfig): DeckSummary | null {
     day: "numeric" 
   })})`;
 
+  const totalPrice = DECK_PRICE * quantity;
+
   return {
     deckId,
     categories,
     totalCards: config.total,
     cardBackDesign,
     cardBackHue: config.cardBackDesign === "custom-gradient" ? config.cardBackHue : null,
-    price: DECK_PRICE,
-    formattedPrice: formatPrice(DECK_PRICE),
+    quantity,
+    pricePerDeck: DECK_PRICE,
+    totalPrice,
+    formattedPricePerDeck: formatPrice(DECK_PRICE),
+    formattedTotalPrice: formatPrice(totalPrice),
     estimatedDelivery,
     createdAt: new Date().toISOString(),
   };
@@ -230,16 +238,25 @@ export function generateWhatsAppMessage(summary: DeckSummary): string {
     ? ` (Hue: ${summary.cardBackHue})` 
     : "";
 
-  return `Hi! I'd like to place a beta order for a custom conversation deck.
+  const quantityText = summary.quantity > 1 
+    ? `${summary.quantity} decks` 
+    : "1 deck";
+
+  const priceBreakdown = summary.quantity > 1
+    ? `${summary.formattedPricePerDeck} x ${summary.quantity} = ${summary.formattedTotalPrice}`
+    : summary.formattedTotalPrice;
+
+  return `Hi! I'd like to place a beta order for ${quantityText}.
 
 *Deck ID:* ${summary.deckId}
 
 *My Card Mix:*
 ${categoryList}
 
-*Total Cards:* ${summary.totalCards}
+*Total Cards:* ${summary.totalCards} per deck
 *Card Back:* ${summary.cardBackDesign}${hueInfo}
-*Price:* ${summary.formattedPrice}
+*Quantity:* ${summary.quantity}
+*Price:* ${priceBreakdown}
 *Estimated Delivery:* ${summary.estimatedDelivery}
 
 Please guide me through the next steps for payment and delivery. Thank you!`;

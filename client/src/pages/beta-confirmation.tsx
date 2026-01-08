@@ -82,7 +82,7 @@ export default function BetaConfirmation() {
               
               <div className="flex justify-between gap-4">
                 <span className="text-muted-foreground">Total Cards</span>
-                <span>{summary.totalCards} cards</span>
+                <span>{summary.totalCards} cards per deck</span>
               </div>
 
               <div className="flex justify-between gap-4">
@@ -91,6 +91,11 @@ export default function BetaConfirmation() {
                   {summary.cardBackDesign}
                   {summary.cardBackHue !== null && ` (Hue: ${summary.cardBackHue})`}
                 </span>
+              </div>
+
+              <div className="flex justify-between gap-4">
+                <span className="text-muted-foreground">Quantity</span>
+                <span>{summary.quantity} {summary.quantity > 1 ? "decks" : "deck"}</span>
               </div>
 
               <div className="border-t pt-3 mt-3">
@@ -107,9 +112,15 @@ export default function BetaConfirmation() {
               </div>
 
               <div className="border-t pt-3 mt-3">
+                {summary.quantity > 1 && (
+                  <div className="flex justify-between gap-4 text-muted-foreground mb-1">
+                    <span>Price per deck</span>
+                    <span>{summary.formattedPricePerDeck}</span>
+                  </div>
+                )}
                 <div className="flex justify-between gap-4">
                   <span className="font-semibold">Total Price</span>
-                  <span className="font-bold text-lg">{summary.formattedPrice}</span>
+                  <span className="font-bold text-lg">{summary.formattedTotalPrice}</span>
                 </div>
                 <div className="flex justify-between gap-4 text-muted-foreground">
                   <span>Estimated Delivery</span>
