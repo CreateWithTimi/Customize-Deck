@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, Link } from "wouter";
-import { getDeckState, validations } from "@/lib/deck-state";
+import { getDeckState, validations, generateDeckSummary, generateWhatsAppMessage, generateWhatsAppUrl } from "@/lib/deck-state";
 import { CATEGORIES, CATEGORY_META, CARD_BACK_DESIGNS, REQUIRED_TOTAL, formatPrice, DECK_PRICE } from "@shared/schema";
 import { StepIndicator } from "@/components/step-indicator";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -8,7 +8,7 @@ import { CardBackPreview } from "@/components/card-back-preview";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Heart, ArrowLeft, ChevronRight, Edit2, Check } from "lucide-react";
+import { Heart, ArrowLeft, Edit2, Check, MessageCircle, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const colorMap: Record<string, string> = {
@@ -19,9 +19,13 @@ const colorMap: Record<string, string> = {
   violet: "bg-violet-500",
 };
 
+const WHATSAPP_NUMBER = "08165429119";
+
 export default function Preview() {
   const [, navigate] = useLocation();
   const [config, setConfig] = useState(getDeckState);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [isOrdering, setIsOrdering] = useState(false);
 
   useEffect(() => {
     const currentConfig = getDeckState();
@@ -41,6 +45,39 @@ export default function Preview() {
     (d) => d.id === config.cardBackDesign
   );
   const designIndex = config.cardBackIndex ?? 0;
+
+  const handleBetaOrder = () => {
+    // Validate deck
+    const errors = validations.getValidationErrors(config);
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+
+    setValidationErrors([]);
+    setIsOrdering(true);
+
+    // Generate deck summary
+    const summary = generateDeckSummary(config);
+    if (!summary) {
+      setValidationErrors(["Unable to generate order summary. Please try again."]);
+      setIsOrdering(false);
+      return;
+    }
+
+    // Store summary for confirmation page
+    sessionStorage.setItem("betaOrderSummary", JSON.stringify(summary));
+
+    // Generate WhatsApp message and URL
+    const message = generateWhatsAppMessage(summary);
+    const whatsappUrl = generateWhatsAppUrl(WHATSAPP_NUMBER, message);
+
+    // Open WhatsApp in new tab
+    window.open(whatsappUrl, "_blank");
+
+    // Navigate to confirmation page
+    navigate("/beta-confirmation");
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -75,14 +112,14 @@ export default function Preview() {
         <div className="mb-8 text-center">
           <h1 className="text-2xl md:text-3xl font-bold mb-2">Review Your Deck</h1>
           <p className="text-muted-foreground">
-            Make sure everything looks perfect before checkout
+            Make sure everything looks perfect before ordering
           </p>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-2 max-w-5xl mx-auto">
           {/* Category Breakdown */}
           <Card className="p-6 md:p-8">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between gap-4 mb-6">
               <h2 className="text-xl font-semibold">Your Card Mix</h2>
               <Link href="/customize">
                 <Button variant="ghost" size="sm" className="gap-2" data-testid="button-edit-mix">
@@ -100,7 +137,7 @@ export default function Preview() {
 
                 return (
                   <div key={category} className="space-y-2">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <div
                           className={cn(
@@ -120,7 +157,7 @@ export default function Preview() {
               })}
 
               <div className="pt-4 mt-4 border-t">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2">
                   <span className="font-semibold">Total</span>
                   <div className="flex items-center gap-2">
                     <Check className="h-4 w-4 text-primary" />
@@ -135,7 +172,7 @@ export default function Preview() {
 
           {/* Card Back Preview */}
           <Card className="p-6 md:p-8">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between gap-4 mb-6">
               <h2 className="text-xl font-semibold">Card Back Design</h2>
               <Link href="/card-back">
                 <Button variant="ghost" size="sm" className="gap-2" data-testid="button-edit-design">
@@ -171,7 +208,7 @@ export default function Preview() {
             <div>
               <h3 className="font-semibold text-lg">Custom Conversation Deck</h3>
               <p className="text-sm text-muted-foreground">
-                52 premium cards • {selectedDesign?.name} design
+                52 premium cards with {selectedDesign?.name} design
               </p>
             </div>
             <div className="text-right">
@@ -181,14 +218,37 @@ export default function Preview() {
           </div>
         </Card>
 
-        {/* CTA */}
-        <div className="flex justify-center mt-8">
-          <Link href="/checkout">
-            <Button size="lg" className="gap-2" data-testid="button-proceed-checkout">
-              Proceed to Checkout
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </Link>
+        {/* Validation Errors */}
+        {validationErrors.length > 0 && (
+          <Card className="max-w-5xl mx-auto mt-4 p-4 border-destructive bg-destructive/10">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                {validationErrors.map((error, index) => (
+                  <p key={index} className="text-sm text-destructive">
+                    {error}
+                  </p>
+                ))}
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Beta Order CTA */}
+        <div className="flex flex-col items-center mt-8 space-y-3">
+          <Button 
+            size="lg" 
+            className="gap-2" 
+            onClick={handleBetaOrder}
+            disabled={isOrdering}
+            data-testid="button-order-beta"
+          >
+            <MessageCircle className="h-5 w-5" />
+            {isOrdering ? "Opening WhatsApp..." : "Order (Beta)"}
+          </Button>
+          <p className="text-sm text-muted-foreground text-center max-w-md">
+            We're in beta. Orders are processed manually to ensure quality and collect feedback.
+          </p>
         </div>
       </main>
     </div>

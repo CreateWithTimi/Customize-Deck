@@ -1,4 +1,4 @@
-import { DeckConfig, CATEGORIES, REQUIRED_TOTAL, Category } from "@shared/schema";
+import { DeckConfig, CATEGORIES, REQUIRED_TOTAL, Category, CATEGORY_META, CARD_BACK_DESIGNS, DECK_PRICE, formatPrice } from "@shared/schema";
 
 const STORAGE_KEY = "deckConfigV1";
 
@@ -146,4 +146,117 @@ export const validations = {
   isComplete(config: DeckConfig): boolean {
     return config.total === REQUIRED_TOTAL;
   },
+
+  getValidationErrors(config: DeckConfig): string[] {
+    const errors: string[] = [];
+    
+    if (config.total === 0) {
+      errors.push("Please select at least one category for your deck");
+    } else if (config.total !== REQUIRED_TOTAL) {
+      errors.push(`Your deck needs exactly ${REQUIRED_TOTAL} cards (currently ${config.total})`);
+    }
+    
+    if (!config.cardBackDesign) {
+      errors.push("Please select a card back design");
+    }
+    
+    return errors;
+  },
 };
+
+// Deck summary for orders (reusable for WhatsApp beta and future Paystack checkout)
+export interface DeckSummary {
+  deckId: string;
+  categories: Array<{ name: string; count: number }>;
+  totalCards: number;
+  cardBackDesign: string;
+  cardBackHue: number | null;
+  price: number;
+  formattedPrice: string;
+  estimatedDelivery: string;
+  createdAt: string;
+}
+
+export function generateDeckSummary(config: DeckConfig): DeckSummary | null {
+  // Validate deck is complete
+  if (validations.getValidationErrors(config).length > 0) {
+    return null;
+  }
+
+  // Generate unique deck ID
+  const deckId = `DECK-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+
+  // Build category breakdown
+  const categories = CATEGORIES
+    .filter((cat) => config.counts[cat] > 0)
+    .map((cat) => ({
+      name: CATEGORY_META[cat].label,
+      count: config.counts[cat],
+    }));
+
+  // Get card back design name
+  const design = CARD_BACK_DESIGNS.find((d) => d.id === config.cardBackDesign);
+  const cardBackDesign = design?.name || config.cardBackDesign || "Unknown";
+
+  // Estimated delivery (5-7 business days from now)
+  const deliveryDate = new Date();
+  deliveryDate.setDate(deliveryDate.getDate() + 7);
+  const estimatedDelivery = `5-7 business days (by ${deliveryDate.toLocaleDateString("en-NG", { 
+    weekday: "short", 
+    month: "short", 
+    day: "numeric" 
+  })})`;
+
+  return {
+    deckId,
+    categories,
+    totalCards: config.total,
+    cardBackDesign,
+    cardBackHue: config.cardBackDesign === "custom-gradient" ? config.cardBackHue : null,
+    price: DECK_PRICE,
+    formattedPrice: formatPrice(DECK_PRICE),
+    estimatedDelivery,
+    createdAt: new Date().toISOString(),
+  };
+}
+
+// Generate WhatsApp message from deck summary
+export function generateWhatsAppMessage(summary: DeckSummary): string {
+  const categoryList = summary.categories
+    .map((c) => `  - ${c.name}: ${c.count} cards`)
+    .join("\n");
+
+  const hueInfo = summary.cardBackHue !== null 
+    ? ` (Hue: ${summary.cardBackHue})` 
+    : "";
+
+  return `Hi! I'd like to place a beta order for a custom conversation deck.
+
+*Deck ID:* ${summary.deckId}
+
+*My Card Mix:*
+${categoryList}
+
+*Total Cards:* ${summary.totalCards}
+*Card Back:* ${summary.cardBackDesign}${hueInfo}
+*Price:* ${summary.formattedPrice}
+*Estimated Delivery:* ${summary.estimatedDelivery}
+
+Please guide me through the next steps for payment and delivery. Thank you!`;
+}
+
+// Generate WhatsApp URL
+export function generateWhatsAppUrl(phoneNumber: string, message: string): string {
+  // Remove any non-digit characters and ensure country code
+  let cleanNumber = phoneNumber.replace(/\D/g, "");
+  
+  // Add Nigeria country code if not present
+  if (cleanNumber.startsWith("0")) {
+    cleanNumber = "234" + cleanNumber.substring(1);
+  } else if (!cleanNumber.startsWith("234")) {
+    cleanNumber = "234" + cleanNumber;
+  }
+
+  const encodedMessage = encodeURIComponent(message);
+  return `https://wa.me/${cleanNumber}?text=${encodedMessage}`;
+}
