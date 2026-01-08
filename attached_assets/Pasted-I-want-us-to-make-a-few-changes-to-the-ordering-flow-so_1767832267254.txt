@@ -1,0 +1,41 @@
+I want us to make a few changes to the ordering flow so we can start testing real orders properly.
+
+For now, we should pause full automated checkout. I don’t want to rely on webhooks or payment verification yet since I’m still learning the backend side.
+
+What I want us to implement instead is a Beta Order flow using WhatsApp, but done cleanly and intentionally.
+
+Here’s what I need you to change:
+
+1️⃣ After a user finishes building their deck, replace the main CTA with “Order (Beta)”.
+Add a small helper text below it that says something like:
+“We’re in beta. Orders are processed manually to ensure quality and collect feedback.”
+
+2️⃣ Before redirecting, validate that the deck is complete:
+– at least one category selected
+– valid number of questions
+– a card back design selected
+If anything is missing, block the order and show a clear error message.
+
+3️⃣ On click of Order (Beta), generate a simple deck summary object (we’ll reuse this later when we automate checkout).
+It should include:
+– a generated deck ID
+– selected categories
+– total card count
+– selected card back design
+– price
+– estimated delivery time
+
+4️⃣ Use that summary to redirect the user to WhatsApp with a pre-filled message.
+The message should clearly show their deck details and ask for next steps for payment and delivery.
+
+5️⃣ The redirect should use the wa.me format with the message URL-encoded so it works on both mobile and desktop.
+
+6️⃣ After redirecting, show a confirmation screen telling the user that once they send the WhatsApp message, I’ll guide them through payment and delivery manually.
+
+The key thing here is that this flow should not feel like a workaround. It should feel like an early-access, concierge-style ordering experience.
+
+Also, please structure things in a way that when we’re ready later, we can easily swap this WhatsApp step with a proper Paystack checkout without rewriting the whole flow.
+
+Let me know if anything here feels unclear or if you see a better way to implement it. Once we align, you can go ahead and make the changes.
+
+Thanks 🙏
